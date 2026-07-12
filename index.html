@@ -256,7 +256,7 @@ let editCountyId=data[0].id;
 
 // ============ RENDER ============
 function $(s){return document.querySelector(s)}
-function h(tag,attrs,...children){const e=document.createElement(tag);if(attrs)Object.entries(attrs).forEach(([k,v])=>{if(k==='style'&&typeof v==='object')Object.assign(e.style,v);else if(k.startsWith('on'))e[k.toLowerCase()]=v;else if(k==='className')e.className=v;else e.setAttribute(k,v)});children.flat(Infinity).forEach(c=>{if(c!=null)e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
+function h(tag,attrs,...children){const e=document.createElement(tag);if(attrs)Object.entries(attrs).forEach(([k,v])=>{if(k==='style'&&typeof v==='object')Object.assign(e.style,v);else if(k.startsWith('on'))e[k.toLowerCase()]=v;else if(k==='className')e.className=v;else e.setAttribute(k,v)});children.flat(Infinity).forEach(c=>{if(c!=null)e.appendChild(typeof c==='object'?c:document.createTextNode(String(c)))});return e}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
 
 function aggregate(d){
