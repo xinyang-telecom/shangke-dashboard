@@ -10,11 +10,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>商客直销队伍建设数据看板</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#dbeafe;--success:#16a34a;--success-light:#dcfce7;--warning:#d97706;--warning-light:#fef3c7;--danger:#dc2626;--danger-light:#fee2e2;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--gray-900:#0f172a;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);--shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);--shadow-lg:0 10px 15px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05)}
 body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue",Arial,sans-serif;background:var(--gray-100);color:var(--gray-800);line-height:1.6;-webkit-font-smoothing:antialiased}
-/* LOGIN PAGE */
+/* LOGIN */
 .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 50%,#3b82f6 100%);padding:20px}
 .login-card{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .login-card h1{text-align:center;color:var(--primary-dark);font-size:22px;margin-bottom:6px}
@@ -25,6 +26,8 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .form-group label{display:block;font-size:13px;color:var(--gray-600);margin-bottom:6px;font-weight:500}
 .form-group input,.form-group select{width:100%;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px;transition:border-color .2s;outline:none;font-family:inherit}
 .form-group input:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.remember-row{display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:13px;color:var(--gray-600);cursor:pointer;user-select:none}
+.remember-row input{accent-color:var(--primary);width:16px;height:16px;cursor:pointer}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
 .btn-primary{background:linear-gradient(135deg,var(--primary),#3b82f6);color:#fff;width:100%}
 .btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.4)}
@@ -35,15 +38,17 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .btn-danger{background:var(--danger);color:#fff}
 .btn-danger:hover{background:#b91c1c}
 .btn-success{background:var(--success);color:#fff}
+.btn-capture{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(124,58,237,.3)}
+.btn-capture:hover{opacity:.9;transform:translateY(-1px)}
+.btn-capture:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .login-error{color:var(--danger);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
-.login-hint{text-align:center;margin-top:20px;color:var(--gray-400);font-size:11px}
 /* DASHBOARD */
 .dashboard{min-height:100vh;display:flex;flex-direction:column}
 .header{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);color:#fff;padding:14px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 .header-top{display:flex;align-items:center;justify-content:space-between}
 .header h1{font-size:18px;font-weight:600;letter-spacing:.5px}
 .header .sub{font-size:12px;opacity:.8;margin-top:2px}
-.header-right{display:flex;align-items:center;gap:12px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .user-badge{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:12px;backdrop-filter:blur(4px)}
 .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
 .btn-logout:hover{background:rgba(255,255,255,.2)}
@@ -51,7 +56,7 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .header-badge{background:rgba(255,255,255,.12);padding:3px 10px;border-radius:12px;font-size:11px;backdrop-filter:blur(4px)}
 /* TABS */
 .tabs{display:flex;background:#fff;border-bottom:1.5px solid var(--gray-200);overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;top:60px;z-index:90}
-.tab-btn{flex:1;min-width:70px;padding:12px 8px;text-align:center;font-size:13px;color:var(--gray-500);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all .2s;font-family:inherit;white-space:nowrap}
+.tab-btn{flex:1;min-width:60px;padding:12px 6px;text-align:center;font-size:13px;color:var(--gray-500);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all .2s;font-family:inherit;white-space:nowrap}
 .tab-btn:hover{color:var(--primary);background:var(--gray-50)}
 .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600;background:var(--primary-light)}
 /* CONTENT */
@@ -68,12 +73,14 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .stat-card.green::after{background:linear-gradient(90deg,var(--success),#4ade80)}
 .stat-card.orange::after{background:linear-gradient(90deg,var(--warning),#fbbf24)}
 .stat-card.red::after{background:linear-gradient(90deg,var(--danger),#f87171)}
+.stat-card.purple::after{background:linear-gradient(90deg,#7c3aed,#a855f7)}
 .stat-card .label{font-size:12px;color:var(--gray-500);margin-bottom:4px}
 .stat-card .value{font-size:22px;font-weight:700;color:var(--gray-900)}
 .stat-card .value.blue{color:var(--primary)}
 .stat-card .value.green{color:var(--success)}
 .stat-card .value.orange{color:var(--warning)}
 .stat-card .value.red{color:var(--danger)}
+.stat-card .value.purple{color:#7c3aed}
 .stat-card .extra{font-size:11px;color:var(--gray-400);margin-top:2px}
 /* TABLE */
 .data-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -82,7 +89,7 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .data-table tr:hover td{background:var(--gray-50)}
 .data-table .num{text-align:right;font-variant-numeric:tabular-nums}
 /* PROGRESS BAR */
-.progress-bar{height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden;position:relative}
+.progress-bar{height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden;position:relative;display:inline-block}
 .progress-bar .fill{height:100%;border-radius:4px;transition:width .4s ease}
 .progress-bar .fill.green{background:linear-gradient(90deg,var(--success),#4ade80)}
 .progress-bar .fill.blue{background:linear-gradient(90deg,var(--primary),#60a5fa)}
@@ -94,6 +101,7 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .badge-green{background:var(--success-light);color:var(--success)}
 .badge-orange{background:var(--warning-light);color:var(--warning)}
 .badge-red{background:var(--danger-light);color:var(--danger)}
+.badge-purple{background:#ede9fe;color:#7c3aed}
 .badge-gray{background:var(--gray-100);color:var(--gray-600)}
 /* COUNTY FILTER */
 .county-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
@@ -101,40 +109,51 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .funnel{display:flex;flex-direction:column;gap:8px;max-width:500px;margin:0 auto}
 .funnel-step{display:flex;align-items:center;gap:10px}
 .funnel-step .bar{height:32px;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-size:12px;font-weight:500;min-width:40px;transition:width .4s}
-.funnel-step .label{font-size:13px;color:var(--gray-600);white-space:nowrap;min-width:80px}
-.funnel-step .pct{font-size:12px;color:var(--gray-400);min-width:50px}
+.funnel-step .flabel{font-size:13px;color:var(--gray-600);white-space:nowrap;min-width:80px}
+.funnel-step .fpct{font-size:12px;color:var(--gray-400);min-width:50px}
 /* BAR CHART */
 .bar-chart{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 4px;border-bottom:1px solid var(--gray-200);margin-bottom:8px}
 .bar-chart .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar-chart .bar-col .bar{width:100%;border-radius:4px 4px 0 0;transition:height .4s;position:relative}
-.bar-chart .bar-col .bar .pct{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;white-space:nowrap}
-.bar-chart .bar-col .name{font-size:10px;color:var(--gray-500);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50px}
+.bar-chart .bar-col .bbar{width:100%;border-radius:4px 4px 0 0;transition:height .4s;position:relative}
+.bar-chart .bar-col .bbar .bpct{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:600;white-space:nowrap}
+.bar-chart .bar-col .bname{font-size:10px;color:var(--gray-500);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50px}
 /* HORIZONTAL BAR */
 .h-bar-chart{display:flex;flex-direction:column;gap:8px}
 .h-bar-row{display:flex;align-items:center;gap:8px}
-.h-bar-row .name{font-size:12px;color:var(--gray-600);min-width:50px;text-align:right;white-space:nowrap}
-.h-bar-row .bar-wrap{flex:1;height:20px;background:var(--gray-100);border-radius:4px;overflow:hidden}
-.h-bar-row .bar-fill{height:100%;border-radius:4px;transition:width .4s}
-.h-bar-row .val{font-size:11px;color:var(--gray-500);min-width:55px}
+.h-bar-row .hname{font-size:12px;color:var(--gray-600);min-width:50px;text-align:right;white-space:nowrap}
+.h-bar-row .hbar-wrap{flex:1;height:20px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.h-bar-row .hbar-fill{height:100%;border-radius:4px;transition:width .4s}
+.h-bar-row .hval{font-size:11px;color:var(--gray-500);min-width:55px}
+/* TOP LIST */
+.top-list{display:flex;flex-direction:column;gap:6px}
+.top-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-100)}
+.top-item .rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.top-item .rank.gold{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.top-item .rank.silver{background:linear-gradient(135deg,#94a3b8,#cbd5e1)}
+.top-item .rank.bronze{background:linear-gradient(135deg,#b45309,#d97706)}
+.top-item .rank.normal{background:var(--gray-300);color:var(--gray-600)}
+.top-item .tname{font-size:13px;font-weight:500;flex:1}
+.top-item .tcounty{font-size:11px;color:var(--gray-400)}
+.top-item .tval{font-size:14px;font-weight:700;min-width:40px;text-align:right}
 /* MEMBER CARD */
 .member-card{background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid var(--gray-200)}
-.member-card .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.member-card .fields{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.member-card .fields .field{display:flex;flex-direction:column}
-.member-card .fields .field label{font-size:10px;color:var(--gray-400)}
-.member-card .fields .field input{padding:4px 8px;border:1px solid var(--gray-200);border-radius:4px;font-size:13px;width:100%;font-family:inherit}
-/* EXIT WARNING CARDS */
+.member-card .mtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.member-card .mfields{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.member-card .mfields .mfield{display:flex;flex-direction:column}
+.member-card .mfields .mfield label{font-size:10px;color:var(--gray-400)}
+.member-card .mfields .mfield input{padding:4px 8px;border:1px solid var(--gray-200);border-radius:4px;font-size:13px;width:100%;font-family:inherit}
+/* WARN CARD */
 .warn-card{border-radius:8px;padding:12px;margin-bottom:8px;border-left:4px solid}
 .warn-card.red{background:var(--danger-light);border-color:var(--danger)}
 .warn-card.orange{background:var(--warning-light);border-color:var(--warning)}
-.warn-card .name{font-weight:600;font-size:14px}
-.warn-card .info{font-size:12px;color:var(--gray-600);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap}
+.warn-card .wname{font-weight:600;font-size:14px}
+.warn-card .winfo{font-size:12px;color:var(--gray-600);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap}
 /* STEP GUIDE */
-.step-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.step-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
 .step-item{background:var(--gray-50);border-radius:8px;padding:14px;text-align:center;border:1px solid var(--gray-200)}
-.step-item .num{width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;margin-bottom:6px}
-.step-item .title{font-size:13px;font-weight:600;margin-bottom:4px}
-.step-item .desc{font-size:11px;color:var(--gray-500)}
+.step-item .snum{width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;margin-bottom:6px}
+.step-item .stitle{font-size:13px;font-weight:600;margin-bottom:4px}
+.step-item .sdesc{font-size:11px;color:var(--gray-500)}
 /* EDIT GRID */
 .edit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
 .edit-field{display:flex;flex-direction:column}
@@ -147,12 +166,12 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 /* SLIDER */
 .slider-wrap{display:flex;align-items:center;gap:12px;margin:12px 0}
 .slider-wrap input[type=range]{flex:1;accent-color:var(--primary)}
-.slider-wrap .val{font-weight:700;font-size:18px;color:var(--primary);min-width:40px;text-align:center}
+.slider-wrap .sval{font-weight:700;font-size:18px;color:var(--primary);min-width:40px;text-align:center}
 /* INFO PANEL */
 .info-panel{background:var(--primary-light);border:1px solid #93c5fd;border-radius:8px;padding:14px;margin-top:12px}
-.info-panel .row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
-.info-panel .row .label{color:var(--gray-600)}
-.info-panel .row .val{font-weight:600}
+.info-panel .irow{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.info-panel .irow .ilabel{color:var(--gray-600)}
+.info-panel .irow .ival{font-weight:600}
 /* TOAST */
 .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--gray-800);color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
@@ -161,14 +180,13 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 /* COUNTY GRID */
 .county-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .county-mini-card{background:var(--gray-50);border-radius:8px;padding:10px;border:1px solid var(--gray-200)}
-.county-mini-card .name{font-size:13px;font-weight:600;margin-bottom:6px}
-.county-mini-card .stats{font-size:11px;color:var(--gray-500)}
-.county-mini-card .stats span{display:block}
+.county-mini-card .cname{font-size:13px;font-weight:600;margin-bottom:6px}
+.county-mini-card .cstats{font-size:11px;color:var(--gray-500)}
+.county-mini-card .cstats span{display:block}
+/* PRODUCT TAB */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
 /* RESPONSIVE */
-@media(max-width:640px){.header h1{font-size:15px}.stat-grid{grid-template-columns:repeat(2,1fr)}.stat-card .value{font-size:18px}.content{padding:10px}.edit-grid{grid-template-columns:1fr 1fr}.county-grid{grid-template-columns:repeat(2,1fr)}.tab-btn{font-size:12px;padding:10px 4px}}
-.collapsible-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.collapsible-header .arrow{transition:transform .2s;font-size:12px;color:var(--gray-400)}
-.collapsible-header .arrow.open{transform:rotate(180deg)}
+@media(max-width:640px){.header h1{font-size:15px}.stat-grid{grid-template-columns:repeat(2,1fr)}.stat-card .value{font-size:18px}.content{padding:10px}.edit-grid{grid-template-columns:1fr 1fr}.county-grid{grid-template-columns:repeat(2,1fr)}.tab-btn{font-size:12px;padding:10px 4px}.product-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -177,187 +195,391 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 
 <script>
 // ============ CONSTANTS ============
-const DEPT_NAME = '信阳分公司商客中心';
-const APP_TITLE = '商客直销队伍建设数据看板';
-const STORAGE_KEY = 'sk_dashboard_data';
-const AUTH_KEY = 'sk_dashboard_auth';
+var DEPT_NAME = '信阳分公司商客中心';
+var APP_TITLE = '商客直销队伍建设数据看板';
+var STORAGE_KEY = 'sk_dashboard_v3';
+var AUTH_KEY = 'sk_auth_v3';
+var CREDS_KEY = 'sk_creds_v3';
 
-const COUNTIES = [
-  {id:'shihe',name:'浉河区'},{id:'pingqiao',name:'平桥区'},{id:'xixian',name:'息县'},
-  {id:'luoshan',name:'罗山县'},{id:'guangshan',name:'光山县'},{id:'xinxian',name:'新县'},
-  {id:'huangchuan',name:'潢川县'},{id:'shangcheng',name:'商城县'},{id:'gushi',name:'固始县'},
-  {id:'huaibin',name:'淮滨县'}
+var COUNTIES = [
+  {id:'shihe',name:'浉河区'},
+  {id:'pingqiao',name:'平桥区'},
+  {id:'xiluo',name:'息罗'},
+  {id:'guangxin',name:'光新'},
+  {id:'huangchuan',name:'潢川县'},
+  {id:'shangcheng',name:'商城县'},
+  {id:'huaibin',name:'淮滨县'},
+  {id:'gushi',name:'固始县'}
 ];
 
-const ACCOUNTS = [
+var ACCOUNTS = [
   {id:'admin',password:'xy2026',name:'市公司管理员',role:'city'},
   {id:'shihe',password:'sk2026',name:'浉河区管理员',role:'county',countyId:'shihe'},
   {id:'pingqiao',password:'sk2026',name:'平桥区管理员',role:'county',countyId:'pingqiao'},
-  {id:'xixian',password:'sk2026',name:'息县管理员',role:'county',countyId:'xixian'},
-  {id:'luoshan',password:'sk2026',name:'罗山县管理员',role:'county',countyId:'luoshan'},
-  {id:'guangshan',password:'sk2026',name:'光山县管理员',role:'county',countyId:'guangshan'},
-  {id:'xinxian',password:'sk2026',name:'新县管理员',role:'county',countyId:'xinxian'},
+  {id:'xiluo',password:'sk2026',name:'息罗管理员',role:'county',countyId:'xiluo'},
+  {id:'guangxin',password:'sk2026',name:'光新管理员',role:'county',countyId:'guangxin'},
   {id:'huangchuan',password:'sk2026',name:'潢川县管理员',role:'county',countyId:'huangchuan'},
   {id:'shangcheng',password:'sk2026',name:'商城县管理员',role:'county',countyId:'shangcheng'},
-  {id:'gushi',password:'sk2026',name:'固始县管理员',role:'county',countyId:'gushi'},
-  {id:'huaibin',password:'sk2026',name:'淮滨县管理员',role:'county',countyId:'huaibin'}
+  {id:'huaibin',password:'sk2026',name:'淮滨县管理员',role:'county',countyId:'huaibin'},
+  {id:'gushi',password:'sk2026',name:'固始县管理员',role:'county',countyId:'gushi'}
+];
+
+var TAB_LIST = [
+  {key:'overview',label:'概览'},
+  {key:'recruit',label:'招聘'},
+  {key:'performance',label:'考核'},
+  {key:'product',label:'产品'},
+  {key:'salary',label:'薪酬'},
+  {key:'exit',label:'预警'}
 ];
 
 // ============ DATA LAYER ============
 function createInitialData(){
-  const templates=[
-    {t:6,c:4,res:28,intv:10,ts:4,prob:2,conf:2,rev:32000,rt:40000,bs:1500,ac:4250,si:660},
-    {t:5,c:3,res:22,intv:8,ts:3,prob:2,conf:1,rev:23100,rt:32000,bs:1500,ac:3800,si:660},
-    {t:5,c:2,res:15,intv:5,ts:2,prob:1,conf:1,rev:15800,rt:32000,bs:1500,ac:3500,si:660},
-    {t:5,c:2,res:18,intv:7,ts:2,prob:1,conf:1,rev:14200,rt:32000,bs:1500,ac:3400,si:660},
-    {t:4,c:2,res:14,intv:5,ts:2,prob:1,conf:1,rev:13500,rt:28000,bs:1500,ac:3300,si:660},
-    {t:4,c:1,res:10,intv:3,ts:1,prob:1,conf:0,rev:7800,rt:28000,bs:1500,ac:3100,si:660},
-    {t:4,c:3,res:18,intv:7,ts:3,prob:2,conf:1,rev:22400,rt:28000,bs:1500,ac:3600,si:660},
-    {t:4,c:2,res:10,intv:4,ts:2,prob:1,conf:1,rev:14600,rt:28000,bs:1500,ac:3300,si:660},
-    {t:5,c:3,res:20,intv:9,ts:3,prob:2,conf:1,rev:20400,rt:32000,bs:1500,ac:3600,si:660},
-    {t:4,c:1,res:8,intv:3,ts:1,prob:1,conf:0,rev:5500,rt:28000,bs:1500,ac:3000,si:660}
+  var templates=[
+    {t:6,c:4,res:28,intv:10,ts:4,prob:2,conf:2,dp:3200,dpt:40000,cb:25,fttr:10,wifi:18},
+    {t:5,c:3,res:22,intv:8,ts:3,prob:2,conf:1,dp:2310,dpt:32000,cb:18,fttr:7,wifi:12},
+    {t:5,c:2,res:15,intv:5,ts:2,prob:1,conf:1,dp:1580,dpt:32000,cb:12,fttr:5,wifi:10},
+    {t:5,c:2,res:18,intv:7,ts:2,prob:1,conf:1,dp:1420,dpt:32000,cb:14,fttr:6,wifi:11},
+    {t:4,c:3,res:18,intv:7,ts:3,prob:2,conf:1,dp:2240,dpt:28000,cb:20,fttr:9,wifi:15},
+    {t:4,c:2,res:10,intv:4,ts:2,prob:1,conf:1,dp:1460,dpt:28000,cb:10,fttr:4,wifi:8},
+    {t:4,c:1,res:8,intv:3,ts:1,prob:1,conf:0,dp:550,dpt:28000,cb:5,fttr:2,wifi:4},
+    {t:5,c:3,res:20,intv:9,ts:3,prob:2,conf:1,dp:2040,dpt:32000,cb:22,fttr:8,wifi:14}
   ];
-  const statuses=['达标','边缘','未达标'];
-  return COUNTIES.map((co,i)=>{
-    const tp=templates[i];
-    const members=[];
-    for(let j=0;j<tp.c;j++){
-      const m=j*3500+Math.floor(Math.random()*3000);
-      const tgt=8000;
-      const rate=m/tgt;
-      members.push({name:'员工'+(j+1),monthly:m,target:tgt,probationDays:j*20+Math.floor(Math.random()*30),status:rate>=1?'达标':rate>=.8?'边缘':'未达标'});
+  return COUNTIES.map(function(co,i){
+    var tp=templates[i];
+    var members=[];
+    for(var j=0;j<tp.c;j++){
+      var dp=j*3500+Math.floor(Math.random()*3000);
+      var tgt=8000;
+      var rate=dp/tgt;
+      members.push({
+        name:'员工'+(j+1),
+        devPoints:dp,
+        devPointsTarget:tgt,
+        probationDays:j*20+Math.floor(Math.random()*30),
+        status:rate>=1?'达标':rate>=0.8?'边缘':'未达标',
+        cloudBroadband:Math.floor(Math.random()*15)+3,
+        fttrB:Math.floor(Math.random()*8)+1,
+        portableWifi:Math.floor(Math.random()*10)+2
+      });
     }
-    return{id:co.id,name:co.name,recruitTarget:tp.t,recruitCurrent:tp.c,resumesReceived:tp.res,interviewsDone:tp.intv,totalStaff:tp.ts,probationStaff:tp.prob,confirmedStaff:tp.conf,monthlyRevenue:tp.rev,revenueTarget:tp.rt,baseSalary:tp.bs,avgCommission:tp.ac,socialInsurance:tp.si,warningCount:members.filter(m=>m.status==='未达标').length,exitCount:0,members};
+    return {
+      id:co.id,
+      name:co.name,
+      recruitTarget:tp.t,
+      recruitCurrent:tp.c,
+      resumesReceived:tp.res,
+      interviewsDone:tp.intv,
+      totalStaff:tp.ts,
+      probationStaff:tp.prob,
+      confirmedStaff:tp.conf,
+      monthlyDevPoints:tp.dp,
+      devPointsTarget:tp.dpt,
+      cloudBroadband:tp.cb,
+      fttrB:tp.fttr,
+      portableWifi:tp.wifi,
+      baseSalary:1500,
+      avgCommission:3500+Math.floor(Math.random()*1500),
+      socialInsurance:660,
+      warningCount:members.filter(function(m){return m.status==='未达标'}).length,
+      exitCount:0,
+      members:members
+    };
   });
 }
 
-function loadData(){try{const d=localStorage.getItem(STORAGE_KEY);return d?JSON.parse(d):null}catch(e){return null}}
-function saveData(d){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}}
-function fmtMoney(n){return n.toLocaleString('zh-CN')}
+function loadData(){
+  try{var d=localStorage.getItem(STORAGE_KEY);return d?JSON.parse(d):null}catch(e){return null}
+}
+function saveData(d){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}
+}
+function fmtNum(n){return n.toLocaleString('zh-CN')}
 function pct(a,b){return b?Math.round(a/b*100):0}
 
 // ============ AUTH ============
-let currentUser=null;
-function loadAuth(){try{const a=localStorage.getItem(AUTH_KEY);if(a){const p=JSON.parse(a);const acc=ACCOUNTS.find(x=>x.id===p.id);if(acc){currentUser={...acc};return true}}}catch(e){}return false}
-function saveAuth(id){try{localStorage.setItem(AUTH_KEY,JSON.stringify({id}))}catch(e){}}
+var currentUser=null;
+function loadAuth(){
+  try{
+    var a=localStorage.getItem(AUTH_KEY);
+    if(a){
+      var p=JSON.parse(a);
+      var acc=ACCOUNTS.find(function(x){return x.id===p.id});
+      if(acc){currentUser={};for(var k in acc)currentUser[k]=acc[k];return true}
+    }
+  }catch(e){}
+  return false;
+}
+function saveAuth(id){try{localStorage.setItem(AUTH_KEY,JSON.stringify({id:id}))}catch(e){}}
 function clearAuth(){localStorage.removeItem(AUTH_KEY);currentUser=null}
-function doLogin(uid,pwd){const acc=ACCOUNTS.find(a=>a.id===uid&&a.password===pwd);if(acc){currentUser={...acc};saveAuth(uid);return true}return false}
-function doLogout(){clearAuth();render()}
-function getVisibleCounties(data){if(!currentUser)return[];if(currentUser.role==='city')return data;return data.filter(d=>d.id===currentUser.countyId)}
+function doLogin(uid,pwd){
+  var acc=ACCOUNTS.find(function(a){return a.id===uid&&a.password===pwd});
+  if(acc){currentUser={};for(var k in acc)currentUser[k]=acc[k];saveAuth(uid);return true}
+  return false;
+}
+function doLogout(){
+  if(!document.getElementById('remember-me')||!document.getElementById('remember-me').checked){
+    localStorage.removeItem(CREDS_KEY);
+  }
+  clearAuth();
+  render();
+}
+function saveCreds(uid,pwd){try{localStorage.setItem(CREDS_KEY,JSON.stringify({u:uid,p:pwd}))}catch(e){}}
+function loadCreds(){try{var c=localStorage.getItem(CREDS_KEY);return c?JSON.parse(c):null}catch(e){return null}}
+function getVisibleCounties(d){if(!currentUser)return[];if(currentUser.role==='city')return d;return d.filter(function(x){return x.id===currentUser.countyId})}
+function canEdit(){return currentUser&&currentUser.role==='city'}
 
 // ============ STATE ============
-let data=loadData()||createInitialData();
-// migrate from 8-county to 10-county
-if(data.length<10){data=createInitialData();saveData(data)}
-let activeTab='overview';
-let selectedCounty='all';
-let salaryHC=0;
-let editCountyId=data[0].id;
+var data=loadData()||createInitialData();
+if(data.length!==8){data=createInitialData();saveData(data)}
+var activeTab='overview';
+var selectedCounty='all';
+var salaryHC=0;
+var editCountyId=data[0].id;
 
-// ============ RENDER ============
+// ============ RENDER HELPERS ============
 function $(s){return document.querySelector(s)}
-function h(tag,attrs,...children){const e=document.createElement(tag);if(attrs)Object.entries(attrs).forEach(([k,v])=>{if(k==='style'&&typeof v==='object')Object.assign(e.style,v);else if(k.startsWith('on'))e[k.toLowerCase()]=v;else if(k==='className')e.className=v;else e.setAttribute(k,v)});children.flat(Infinity).forEach(c=>{if(c!=null)e.appendChild(typeof c==='object'?c:document.createTextNode(String(c)))});return e}
-function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
+function h(tag,attrs){
+  var e=document.createElement(tag);
+  if(attrs){
+    var keys=Object.keys(attrs);
+    for(var i=0;i<keys.length;i++){
+      var k=keys[i],v=attrs[k];
+      if(k==='style'&&typeof v==='object'){for(var sk in v)e.style[sk]=v[sk]}
+      else if(k.startsWith('on')){e[k.toLowerCase()]=v}
+      else if(k==='className'){e.className=v}
+      else{e.setAttribute(k,v)}
+    }
+  }
+  for(var i=2;i<arguments.length;i++){
+    var c=arguments[i];
+    if(c==null)continue;
+    if(Array.isArray(c)){for(var j=0;j<c.length;j++)appendChild(e,c[j])}
+    else appendChild(e,c);
+  }
+  return e;
+}
+function appendChild(e,c){
+  if(c==null)return;
+  if(typeof c==='object'&&c.nodeType){e.appendChild(c)}
+  else{e.appendChild(document.createTextNode(String(c)))}
+}
+function toast(msg){var t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000)}
 
 function aggregate(d){
-  const a={recruitTarget:0,recruitCurrent:0,totalStaff:0,probationStaff:0,confirmedStaff:0,resumesReceived:0,interviewsDone:0,monthlyRevenue:0,revenueTarget:0,warningCount:0,exitCount:0,totalMembers:0,reachedMembers:0,borderlineMembers:0,unreachedMembers:0};
-  d.forEach(c=>{Object.keys(a).forEach(k=>{if(k==='totalMembers')return;if(k==='reachedMembers'||k==='borderlineMembers'||k==='unreachedMembers')return;a[k]+=c[k]||0});c.members.forEach(m=>{a.totalMembers++;if(m.status==='达标')a.reachedMembers++;else if(m.status==='边缘')a.borderlineMembers++;else a.unreachedMembers++})});return a}
+  var a={recruitTarget:0,recruitCurrent:0,totalStaff:0,probationStaff:0,confirmedStaff:0,
+    resumesReceived:0,interviewsDone:0,monthlyDevPoints:0,devPointsTarget:0,
+    warningCount:0,exitCount:0,totalMembers:0,reachedMembers:0,borderlineMembers:0,unreachedMembers:0,
+    cloudBroadband:0,fttrB:0,portableWifi:0};
+  d.forEach(function(c){
+    a.recruitTarget+=c.recruitTarget||0;
+    a.recruitCurrent+=c.recruitCurrent||0;
+    a.totalStaff+=c.totalStaff||0;
+    a.probationStaff+=c.probationStaff||0;
+    a.confirmedStaff+=c.confirmedStaff||0;
+    a.resumesReceived+=c.resumesReceived||0;
+    a.interviewsDone+=c.interviewsDone||0;
+    a.monthlyDevPoints+=c.monthlyDevPoints||0;
+    a.devPointsTarget+=c.devPointsTarget||0;
+    a.warningCount+=c.warningCount||0;
+    a.exitCount+=c.exitCount||0;
+    a.cloudBroadband+=c.cloudBroadband||0;
+    a.fttrB+=c.fttrB||0;
+    a.portableWifi+=c.portableWifi||0;
+    (c.members||[]).forEach(function(m){
+      a.totalMembers++;
+      if(m.status==='达标')a.reachedMembers++;
+      else if(m.status==='边缘')a.borderlineMembers++;
+      else a.unreachedMembers++;
+    });
+  });
+  return a;
+}
 
-function render(){const app=$('#app');app.innerHTML='';if(!currentUser){app.appendChild(renderLogin())}else{app.appendChild(renderDashboard())}}
+function render(){
+  var app=$('#app');
+  app.innerHTML='';
+  if(!currentUser){
+    app.appendChild(renderLogin());
+  }else{
+    app.appendChild(renderDashboard());
+  }
+}
 
-// LOGIN
+// ============ LOGIN ============
 function renderLogin(){
-  return h('div',{className:'login-page'},h('div',{className:'login-card'},
-    h('div',{className:'logo-area'},h('div',{className:'icon'},'商')),
-    h('h1',{},APP_TITLE),h('div',{className:'sub'},DEPT_NAME),
-    h('div',{className:'form-group'},h('label',{},'账号'),h('input',{id:'login-user',type:'text',placeholder:'请输入账号',autocomplete:'username'})),
-    h('div',{className:'form-group'},h('label',{},'密码'),h('input',{id:'login-pwd',type:'password',placeholder:'请输入密码',autocomplete:'current-password'})),
-    h('button',{className:'btn btn-primary',onClick:handleLogin},'登 录'),
-    h('div',{id:'login-error',className:'login-error'}),
-    h('div',{className:'login-hint'},'市公司账号: admin / xy2026 | 区县账号: 区县拼音 / sk2026')
-  ));
-}
-function handleLogin(){
-  const u=$('#login-user').value.trim(),p=$('#login-pwd').value;
-  if(doLogin(u,p))render();
-  else $('#login-error').textContent='账号或密码错误';
+  var saved=loadCreds();
+  var uid=saved?saved.u:'';
+  var pwd=saved?saved.p:'';
+  var chk=saved?true:false;
+  return h('div',{className:'login-page'},
+    h('div',{className:'login-card'},
+      h('div',{className:'logo-area'},h('div',{className:'icon'},'商')),
+      h('h1',{},APP_TITLE),
+      h('div',{className:'sub'},DEPT_NAME),
+      h('div',{className:'form-group'},
+        h('label',{},'账号'),
+        h('input',{id:'login-user',type:'text',placeholder:'请输入账号',autocomplete:'username',value:uid})
+      ),
+      h('div',{className:'form-group'},
+        h('label',{},'密码'),
+        h('input',{id:'login-pwd',type:'password',placeholder:'请输入密码',autocomplete:'current-password',value:pwd})
+      ),
+      h('label',{className:'remember-row'},
+        h('input',{id:'remember-me',type:'checkbox',checked:chk?'checked':null}),
+        ' 记住账号密码'
+      ),
+      h('button',{className:'btn btn-primary',onclick:handleLogin},'登 录'),
+      h('div',{id:'login-error',className:'login-error'})
+    )
+  );
 }
 
-// DASHBOARD
+function handleLogin(){
+  var u=$('#login-user').value.trim();
+  var p=$('#login-pwd').value;
+  if(doLogin(u,p)){
+    var rm=$('#remember-me');
+    if(rm&&rm.checked){saveCreds(u,p)}else{localStorage.removeItem(CREDS_KEY)}
+    render();
+  }else{
+    $('#login-error').textContent='账号或密码错误';
+  }
+}
+
+// ============ DASHBOARD ============
 function renderDashboard(){
-  const vd=getVisibleCounties(data);
-  const ag=aggregate(vd);
+  var vd=getVisibleCounties(data);
+  var ag=aggregate(vd);
   salaryHC=salaryHC||ag.totalStaff;
-  const root=h('div',{className:'dashboard'},
-    // HEADER
+  var tabs=canEdit()?TAB_LIST.concat([{key:'data',label:'管理'}]):TAB_LIST;
+  var root=h('div',{className:'dashboard'},
     h('header',{className:'header'},
       h('div',{className:'header-top'},
         h('div',{},h('h1',{},APP_TITLE),h('div',{className:'sub'},DEPT_NAME)),
         h('div',{className:'header-right'},
           h('span',{className:'user-badge'},currentUser.name),
-          h('button',{className:'btn-logout',onClick:doLogout},'退出')
+          !canEdit()?h('button',{className:'btn-capture',onclick:captureLongImage},'长图'):null,
+          h('button',{className:'btn-logout',onclick:doLogout},'退出')
         )
       ),
       h('div',{className:'header-badges'},
         h('span',{className:'header-badge'},'在岗 '+ag.totalStaff+' 人'),
-        h('span',{className:'header-badge'},'预警 '+ag.warningCount+' 人'),
-        h('span',{className:'header-badge'},'本月营收 ¥'+fmtMoney(ag.monthlyRevenue))
+        h('span',{className:'header-badge'},'积分 '+fmtNum(ag.monthlyDevPoints)),
+        h('span',{className:'header-badge'},'预警 '+ag.warningCount+' 人')
       )
     ),
-    // TABS
     h('div',{className:'tabs'},
-      ['概览','招聘','考核','薪酬','预警','管理'].map((n,i)=>
-        h('button',{className:'tab-btn'+(activeTab===['overview','recruit','performance','salary','exit','data'][i]?' active':''),
-          onClick:()=>{activeTab=['overview','recruit','performance','salary','exit','data'][i];selectedCounty='all';render()}},n)
-      )
+      tabs.map(function(t){
+        return h('button',{className:'tab-btn'+(activeTab===t.key?' active':''),onclick:(function(tk){return function(){activeTab=tk;selectedCounty='all';render()}})(t.key)},t.label);
+      })
     ),
-    // CONTENT
     h('div',{className:'content',id:'tab-content'})
   );
-  const cont=root.querySelector('#tab-content');
-  const tabs={overview:renderOverview,recruit:renderRecruit,performance:renderPerformance,salary:renderSalary,exit:renderExit,data:renderData};
-  cont.appendChild(tabs[activeTab](vd,ag));
+  var cont=root.querySelector('#tab-content');
+  var renderers={
+    overview:renderOverview,
+    recruit:renderRecruit,
+    performance:renderPerformance,
+    product:renderProduct,
+    salary:renderSalary,
+    exit:renderExit,
+    data:renderData
+  };
+  if(renderers[activeTab]){cont.appendChild(renderers[activeTab](vd,ag))}
   return root;
+}
+
+// ============ LONG IMAGE ============
+function captureLongImage(){
+  var btn=document.querySelector('.btn-capture');
+  if(btn){btn.disabled=true;btn.textContent='生成中...'}
+  var target=document.getElementById('tab-content');
+  if(!target){toast('内容为空');if(btn){btn.disabled=false;btn.textContent='长图'}return}
+  html2canvas(target,{
+    backgroundColor:'#f1f5f9',
+    scale:2,
+    useCORS:true,
+    logging:false
+  }).then(function(canvas){
+    var link=document.createElement('a');
+    link.download='商客直销看板_'+new Date().toISOString().slice(0,10)+'.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    if(btn){btn.disabled=false;btn.textContent='长图'}
+    toast('长图已保存');
+  }).catch(function(){
+    if(btn){btn.disabled=false;btn.textContent='长图'}
+    toast('生成失败，请重试');
+  });
 }
 
 // ---- OVERVIEW ----
 function renderOverview(vd,ag){
-  const rc=pct(ag.recruitCurrent,ag.recruitTarget);
-  const rv=pct(ag.monthlyRevenue,ag.revenueTarget);
-  const frag=document.createDocumentFragment();
-  // KPI
+  var rc=pct(ag.recruitCurrent,ag.recruitTarget);
+  var dp=pct(ag.monthlyDevPoints,ag.devPointsTarget);
+  var frag=document.createDocumentFragment();
   frag.appendChild(h('div',{className:'stat-grid'},
     statCard('招聘完成',ag.recruitCurrent+'/'+ag.recruitTarget+'人','完成率'+rc+'%','blue',rc>=80?'green':rc>=50?'orange':'red'),
     statCard('在岗人力',ag.totalStaff+'人','试用'+ag.probationStaff+' / 转正'+ag.confirmedStaff,'blue','blue'),
-    statCard('月度营收','¥'+fmtMoney(ag.monthlyRevenue),'目标达成'+rv+'%','blue',rv>=80?'green':rv>=50?'orange':'red'),
+    statCard('发展积分',fmtNum(ag.monthlyDevPoints),'目标达成'+dp+'%','blue',dp>=80?'green':dp>=50?'orange':'red'),
+    statCard('产品发展','云商'+ag.cloudBroadband+' FTTR'+ag.fttrB+' WiFi'+ag.portableWifi,'合计'+(ag.cloudBroadband+ag.fttrB+ag.portableWifi),'purple','purple'),
     statCard('预警退出',ag.warningCount+' / '+ag.exitCount+'人',ag.warningCount>0?'存在预警需关注':'暂无预警','orange',ag.warningCount>0?'red':'green')
   ));
   // TABLE
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县招聘进度'),
-    h('div',{style:'overflow-x:auto'},h('table',{className:'data-table'},
-      h('thead',{},h('tr',{},h('th',{},'区县'),h('th',{className:'num'},'目标'),h('th',{className:'num'},'已到'),h('th',{},'完成率'),h('th',{className:'num'},'简历'),h('th',{className:'num'},'面试'),h('th',{className:'num'},'月营收'),h('th',{},'状态'))),
-      h('tbody',{},...vd.map(c=>{
-        const r=pct(c.recruitCurrent,c.recruitTarget);const rv2=pct(c.monthlyRevenue,c.revenueTarget);
-        return h('tr',{},h('td',{},h('span',{className:'badge badge-blue'},c.name)),h('td',{className:'num'},c.recruitTarget),h('td',{className:'num'},c.recruitCurrent),
-          h('td',{},h('div',{className:'progress-bar',style:'width:80px;display:inline-block'},h('div',{className:'fill '+(r>=80?'green':r>=50?'orange':'red'),style:'width:'+Math.min(r,100)+'%'})),' '+r+'%'),
-          h('td',{className:'num'},c.resumesReceived),h('td',{className:'num'},c.interviewsDone),
-          h('td',{className:'num',style:'color:'+(rv2>=80?'var(--success)':rv2>=50?'var(--warning)':'var(--danger)')},'¥'+fmtMoney(c.monthlyRevenue)),
-          h('td',{},c.warningCount>0?h('span',{className:'badge badge-red'},'预警'):h('span',{className:'badge badge-green'},'正常')))
-      })),
-      h('tfoot',{},h('tr',{style:'font-weight:600;background:var(--gray-50)'},h('td',{},'合计'),h('td',{className:'num'},ag.recruitTarget),h('td',{className:'num'},ag.recruitCurrent),
-        h('td',{},pct(ag.recruitCurrent,ag.recruitTarget)+'%'),h('td',{className:'num'},ag.resumesReceived),h('td',{className:'num'},ag.interviewsDone),
-        h('td',{className:'num'},'¥'+fmtMoney(ag.monthlyRevenue)),h('td',{},'')))
-    ))
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县进度总览'),
+    h('div',{style:'overflow-x:auto'},
+      h('table',{className:'data-table'},
+        h('thead',{},h('tr',{},
+          h('th',{},'区县'),h('th',{className:'num'},'目标'),h('th',{className:'num'},'已到'),h('th',{},'完成率'),
+          h('th',{className:'num'},'发展积分'),h('th',{className:'num'},'积分目标'),
+          h('th',{className:'num'},'云商宽'),h('th',{className:'num'},'FTTR'),h('th',{className:'num'},'WiFi'),
+          h('th',{},'状态')
+        )),
+        h('tbody',{},vd.map(function(c){
+          var r=pct(c.recruitCurrent,c.recruitTarget);
+          var dp2=pct(c.monthlyDevPoints,c.devPointsTarget);
+          return h('tr',{},
+            h('td',{},h('span',{className:'badge badge-blue'},c.name)),
+            h('td',{className:'num'},c.recruitTarget),
+            h('td',{className:'num'},c.recruitCurrent),
+            h('td',{},h('div',{className:'progress-bar',style:'width:80px'},h('div',{className:'fill '+(r>=80?'green':r>=50?'orange':'red'),style:'width:'+Math.min(r,100)+'%'})),' '+r+'%'),
+            h('td',{className:'num',style:'color:'+(dp2>=80?'var(--success)':dp2>=50?'var(--warning)':'var(--danger)')},fmtNum(c.monthlyDevPoints)),
+            h('td',{className:'num'},fmtNum(c.devPointsTarget)),
+            h('td',{className:'num'},c.cloudBroadband||0),
+            h('td',{className:'num'},c.fttrB||0),
+            h('td',{className:'num'},c.portableWifi||0),
+            h('td',{},c.warningCount>0?h('span',{className:'badge badge-red'},'预警'):h('span',{className:'badge badge-green'},'正常'))
+          );
+        })),
+        h('tfoot',{},h('tr',{style:'font-weight:600;background:var(--gray-50)'},
+          h('td',{},'合计'),h('td',{className:'num'},ag.recruitTarget),h('td',{className:'num'},ag.recruitCurrent),
+          h('td',{},pct(ag.recruitCurrent,ag.recruitTarget)+'%'),
+          h('td',{className:'num'},fmtNum(ag.monthlyDevPoints)),
+          h('td',{className:'num'},fmtNum(ag.devPointsTarget)),
+          h('td',{className:'num'},ag.cloudBroadband),
+          h('td',{className:'num'},ag.fttrB),
+          h('td',{className:'num'},ag.portableWifi),
+          h('td',{},'')
+        ))
+      )
+    )
   ));
   // COUNTY GRID
   if(currentUser.role==='city'){
-    frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县人力分布'),
-      h('div',{className:'county-grid'},...vd.map(c=>{
-        const r=pct(c.totalStaff,c.recruitTarget);
-        return h('div',{className:'county-mini-card'},h('div',{className:'name'},c.name),
-          h('div',{className:'stats'},h('span',{},'在岗 '+c.totalStaff+'/'+c.recruitTarget+'人'),
-            h('div',{className:'progress-bar',style:'margin-top:4px'},h('div',{className:'fill '+(r>=80?'green':r>=50?'orange':'red'),style:'width:'+Math.min(r,100)+'%'})),
-            h('span',{style:'font-size:10px;color:var(--gray-400)'},'试用'+c.probationStaff+' 转正'+c.confirmedStaff)))
+    frag.appendChild(h('div',{className:'card'},
+      h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县人力分布'),
+      h('div',{className:'county-grid'},vd.map(function(c){
+        var r=pct(c.totalStaff,c.recruitTarget);
+        return h('div',{className:'county-mini-card'},
+          h('div',{className:'cname'},c.name),
+          h('div',{className:'cstats'},
+            h('span',{},'在岗 '+c.totalStaff+'/'+c.recruitTarget+'人'),
+            h('div',{className:'progress-bar',style:'margin-top:4px;width:100%'},h('div',{className:'fill '+(r>=80?'green':r>=50?'orange':'red'),style:'width:'+Math.min(r,100)+'%'})),
+            h('span',{style:'font-size:10px;color:var(--gray-400)'},'试用'+c.probationStaff+' 转正'+c.confirmedStaff)
+          )
+        );
       }))
     ));
   }
@@ -366,102 +588,231 @@ function renderOverview(vd,ag){
 
 // ---- RECRUIT ----
 function renderRecruit(vd,ag){
-  const frag=document.createDocumentFragment();
+  var frag=document.createDocumentFragment();
   frag.appendChild(countyFilter(vd));
-  const fd=selectedCounty==='all'?vd:vd.filter(c=>c.id===selectedCounty);
-  const fa=aggregate(fd);
+  var fd=selectedCounty==='all'?vd:vd.filter(function(c){return c.id===selectedCounty});
+  var fa=aggregate(fd);
   frag.appendChild(h('div',{className:'stat-grid'},
     statCard('招聘目标',fa.recruitTarget+'人','','blue','blue'),
     statCard('已到岗',fa.recruitCurrent+'人','完成率'+pct(fa.recruitCurrent,fa.recruitTarget)+'%','blue',pct(fa.recruitCurrent,fa.recruitTarget)>=80?'green':'orange'),
     statCard('收取简历',fa.resumesReceived+'份','','blue','blue'),
     statCard('完成面试',fa.interviewsDone+'次','','blue','blue')
   ));
-  // FUNNEL
-  const maxR=Math.max(fa.resumesReceived,1);
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'招聘漏斗'),
+  var maxR=Math.max(fa.resumesReceived,1);
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'招聘漏斗'),
     h('div',{className:'funnel'},
       funnelStep('简历收取',fa.resumesReceived,maxR,'var(--primary)'),
       funnelStep('完成面试',fa.interviewsDone,maxR,'#3b82f6'),
       funnelStep('已入职',fa.recruitCurrent,maxR,'#60a5fa')
     )
   ));
-  // BAR CHART
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县招聘对比'),
-    h('div',{className:'bar-chart'},...fd.map(c=>{
-      const r=pct(c.recruitCurrent,c.recruitTarget);const color=r>=80?'var(--success)':r>=50?'var(--warning)':'var(--danger)';
-      return h('div',{className:'bar-col'},h('div',{className:'bar',style:'height:'+Math.max(r,3)+'%;background:'+color},h('span',{className:'pct',style:'color:'+color},r+'%')),h('div',{className:'name'},c.name.replace(/县|区$/,'')))
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县招聘对比'),
+    h('div',{className:'bar-chart'},fd.map(function(c){
+      var r=pct(c.recruitCurrent,c.recruitTarget);
+      var color=r>=80?'var(--success)':r>=50?'var(--warning)':'var(--danger)';
+      return h('div',{className:'bar-col'},
+        h('div',{className:'bbar',style:'height:'+Math.max(r,3)+'%;background:'+color},h('span',{className:'bpct',style:'color:'+color},r+'%')),
+        h('div',{className:'bname'},c.name.substring(0,2))
+      );
     })),
-    h('div',{style:'display:flex;gap:6px'},...fd.map(c=>h('div',{style:'flex:1;text-align:center;font-size:10px;color:var(--gray-400)'},c.recruitCurrent+'/'+c.recruitTarget)))
+    h('div',{style:'display:flex;gap:6px'},fd.map(function(c){
+      return h('div',{style:'flex:1;text-align:center;font-size:10px;color:var(--gray-400)'},c.recruitCurrent+'/'+c.recruitTarget);
+    }))
   ));
   return h('div',{},frag);
 }
 
 // ---- PERFORMANCE ----
 function renderPerformance(vd,ag){
-  const frag=document.createDocumentFragment();
+  var frag=document.createDocumentFragment();
   frag.appendChild(countyFilter(vd));
-  const fd=selectedCounty==='all'?vd:vd.filter(c=>c.id===selectedCounty);
-  const fa=aggregate(fd);
+  var fd=selectedCounty==='all'?vd:vd.filter(function(c){return c.id===selectedCounty});
+  var fa=aggregate(fd);
   frag.appendChild(h('div',{className:'stat-grid'},
     statCard('达标',fa.reachedMembers+'人','','green','green'),
     statCard('边缘',fa.borderlineMembers+'人','','orange','orange'),
     statCard('未达标',fa.unreachedMembers+'人','','red','red')
   ));
-  const allMembers=[];fd.forEach(c=>c.members.forEach(m=>allMembers.push({...m,countyName:c.name,countyId:c.id})));
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'考核详情'),
-    h('div',{style:'overflow-x:auto'},h('table',{className:'data-table'},
-      h('thead',{},h('tr',{},h('th',{},'姓名'),h('th',{},'区县'),h('th',{className:'num'},'月营收'),h('th',{className:'num'},'目标'),h('th',{},'达成率'),h('th',{},'试用期'),h('th',{},'状态'))),
-      h('tbody',{},...allMembers.map(m=>{
-        const r=pct(m.monthly,m.target);
-        return h('tr',{},h('td',{style:'font-weight:500'},m.name),h('td',{},h('span',{className:'badge badge-blue'},m.countyName)),
-          h('td',{className:'num'},'¥'+fmtMoney(m.monthly)),h('td',{className:'num'},'¥'+fmtMoney(m.target)),
-          h('td',{style:'color:'+(r>=100?'var(--success)':r>=80?'var(--warning)':'var(--danger)'),fontWeight:600},r+'%'),
-          h('td',{},m.probationDays+'/90'),
-          h('td',{},h('span',{className:'badge badge-'+(m.status==='达标'?'green':m.status==='边缘'?'orange':'red')},m.status)))
-      }))
-    ))
+  var allMembers=[];
+  fd.forEach(function(c){
+    (c.members||[]).forEach(function(m){
+      allMembers.push({
+        name:m.name,countyName:c.name,countyId:c.id,
+        devPoints:m.devPoints,devPointsTarget:m.devPointsTarget,
+        probationDays:m.probationDays,status:m.status,
+        cloudBroadband:m.cloudBroadband,fttrB:m.fttrB,portableWifi:m.portableWifi
+      });
+    });
+  });
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'考核详情'),
+    h('div',{style:'overflow-x:auto'},
+      h('table',{className:'data-table'},
+        h('thead',{},h('tr',{},
+          h('th',{},'姓名'),h('th',{},'区县'),
+          h('th',{className:'num'},'发展积分'),h('th',{className:'num'},'目标'),
+          h('th',{},'达成率'),h('th',{},'试用期'),h('th',{},'状态')
+        )),
+        h('tbody',{},allMembers.map(function(m){
+          var r=pct(m.devPoints,m.devPointsTarget);
+          return h('tr',{},
+            h('td',{style:'font-weight:500'},m.name),
+            h('td',{},h('span',{className:'badge badge-blue'},m.countyName)),
+            h('td',{className:'num'},fmtNum(m.devPoints)),
+            h('td',{className:'num'},fmtNum(m.devPointsTarget)),
+            h('td',{style:'color:'+(r>=100?'var(--success)':r>=80?'var(--warning)':'var(--danger)'),fontWeight:600},r+'%'),
+            h('td',{},m.probationDays+'/90'),
+            h('td',{},h('span',{className:'badge badge-'+(m.status==='达标'?'green':m.status==='边缘'?'orange':'red')},m.status))
+          );
+        }))
+      )
+    )
   ));
   return h('div',{},frag);
 }
 
-// ---- SALARY ----
-function renderSalary(vd,ag){
-  const frag=document.createDocumentFragment();
-  const avgComm=Math.round(vd.reduce((s,c)=>s+c.avgCommission,0)/vd.length);
-  const totalBase=1500*salaryHC;
-  const totalComm=avgComm*salaryHC;
-  const socialIns=Math.round(totalBase*.44);
-  const recruitCost=salaryHC*333;
-  const totalCost=totalBase+totalComm+socialIns+recruitCost;
-  const avgRev=ag.totalStaff?Math.round(ag.monthlyRevenue/ag.totalStaff):0;
-  const estRev=avgRev*salaryHC;
-  const roi=totalCost?estRev/totalCost:0;
+// ---- PRODUCT ----
+function renderProduct(vd,ag){
+  var frag=document.createDocumentFragment();
+  frag.appendChild(countyFilter(vd));
+  var fd=selectedCounty==='all'?vd:vd.filter(function(c){return c.id===selectedCounty});
+  var fa=aggregate(fd);
   frag.appendChild(h('div',{className:'stat-grid'},
-    statCard('保底薪资','¥1,500/人','有责底薪','blue','blue'),
-    statCard('平均提成','¥'+fmtMoney(avgComm)+'/人','','blue','blue'),
-    statCard('月度团队成本','¥'+fmtMoney(totalCost),'含社保及招聘','blue','blue'),
-    statCard('投入产出比',roi.toFixed(2)+':1',roi>=1.5?'效益良好':roi>=1?'基本持平':'需关注','blue',roi>=1.5?'green':roi>=1?'orange':'red')
+    statCard('云商宽发展',fa.cloudBroadband+'户','','purple','purple'),
+    statCard('FTTR-B发展',fa.fttrB+'户','','purple','purple'),
+    statCard('随身WiFi发展',fa.portableWifi+'户','','purple','purple')
   ));
-  // SIMULATOR
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'薪酬模拟测算'),
-    h('div',{className:'slider-wrap'},h('span',{style:'font-size:13px;color:var(--gray-600)'},'团队规模'),h('input',{type:'range',min:'5',max:'50',value:String(salaryHC),onInput:e=>{salaryHC=+e.target.value;render()}}),h('span',{className:'val'},salaryHC+'人')),
-    h('div',{className:'info-panel'},
-      h('div',{className:'row'},h('span',{className:'label'},'保底工资合计'),h('span',{className:'val'},'¥'+fmtMoney(totalBase))),
-      h('div',{className:'row'},h('span',{className:'label'},'提成合计'),h('span',{className:'val'},'¥'+fmtMoney(totalComm))),
-      h('div',{className:'row'},h('span',{className:'label'},'社保费用(44%)'),h('span',{className:'val'},'¥'+fmtMoney(socialIns))),
-      h('div',{className:'row'},h('span',{className:'label'},'招聘成本(333元/人)'),h('span',{className:'val'},'¥'+fmtMoney(recruitCost))),
-      h('div',{className:'row',style:'border-top:1px solid #93c5fd;padding-top:6px;margin-top:4px;font-weight:700'},h('span',{className:'label'},'团队月度总成本'),h('span',{className:'val'},'¥'+fmtMoney(totalCost))),
-      h('div',{className:'row'},h('span',{className:'label'},'预计月度营收'),h('span',{className:'val'},'¥'+fmtMoney(estRev))),
-      h('div',{className:'row'},h('span',{className:'label'},'投入产出比'),h('span',{className:'val',style:'color:'+(roi>=1.5?'var(--success)':roi>=1?'var(--warning)':'var(--danger)')},roi.toFixed(2)+':1'))
+  // Collect all members with product data
+  var allMembers=[];
+  fd.forEach(function(c){
+    (c.members||[]).forEach(function(m){
+      allMembers.push({
+        name:m.name,countyName:c.name,countyId:c.id,
+        cloudBroadband:m.cloudBroadband||0,
+        fttrB:m.fttrB||0,
+        portableWifi:m.portableWifi||0
+      });
+    });
+  });
+  // Top lists
+  var cbTop=allMembers.slice().sort(function(a,b){return b.cloudBroadband-a.cloudBroadband}).slice(0,10);
+  var fttrTop=allMembers.slice().sort(function(a,b){return b.fttrB-a.fttrB}).slice(0,10);
+  var wifiTop=allMembers.slice().sort(function(a,b){return b.portableWifi-a.portableWifi}).slice(0,10);
+
+  frag.appendChild(h('div',{className:'product-grid'},
+    h('div',{className:'card'},
+      h('div',{className:'card-title'},h('span',{className:'dot',style:'background:#7c3aed'}),'云商宽发展 TOP'),
+      h('div',{className:'top-list'},cbTop.map(function(m,i){
+        return topItem(i,m.name,m.countyName,m.cloudBroadband,'户');
+      }))
+    ),
+    h('div',{className:'card'},
+      h('div',{className:'card-title'},h('span',{className:'dot',style:'background:#7c3aed'}),'FTTR-B发展 TOP'),
+      h('div',{className:'top-list'},fttrTop.map(function(m,i){
+        return topItem(i,m.name,m.countyName,m.fttrB,'户');
+      }))
+    ),
+    h('div',{className:'card'},
+      h('div',{className:'card-title'},h('span',{className:'dot',style:'background:#7c3aed'}),'随身WiFi发展 TOP'),
+      h('div',{className:'top-list'},wifiTop.map(function(m,i){
+        return topItem(i,m.name,m.countyName,m.portableWifi,'户');
+      }))
     )
   ));
-  // PER-CAPITA
-  const maxPC=Math.max(...vd.map(c=>c.totalStaff?c.monthlyRevenue/c.totalStaff:0),1);
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县人均产出'),
-    h('div',{className:'h-bar-chart'},...vd.map(c=>{
-      const pc=c.totalStaff?Math.round(c.monthlyRevenue/c.totalStaff):0;const w=Math.round(pc/maxPC*100);
-      const color=pc/maxPC>=.7?'var(--primary)':pc/maxPC>=.4?'var(--warning)':'var(--danger)';
-      return h('div',{className:'h-bar-row'},h('span',{className:'name'},c.name.replace(/县|区$/,'')),h('div',{className:'bar-wrap'},h('div',{className:'bar-fill',style:'width:'+w+'%;background:'+color})),h('span',{className:'val'},'¥'+fmtMoney(pc)))
+  // County product comparison
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县产品发展对比'),
+    h('div',{style:'overflow-x:auto'},
+      h('table',{className:'data-table'},
+        h('thead',{},h('tr',{},
+          h('th',{},'区县'),h('th',{className:'num'},'云商宽'),h('th',{className:'num'},'FTTR-B'),h('th',{className:'num'},'随身WiFi'),h('th',{className:'num'},'合计')
+        )),
+        h('tbody',{},fd.map(function(c){
+          var total=(c.cloudBroadband||0)+(c.fttrB||0)+(c.portableWifi||0);
+          return h('tr',{},
+            h('td',{},h('span',{className:'badge badge-blue'},c.name)),
+            h('td',{className:'num'},c.cloudBroadband||0),
+            h('td',{className:'num'},c.fttrB||0),
+            h('td',{className:'num'},c.portableWifi||0),
+            h('td',{className:'num',style:'font-weight:600'},total)
+          );
+        })),
+        h('tfoot',{},h('tr',{style:'font-weight:600;background:var(--gray-50)'},
+          h('td',{},'合计'),
+          h('td',{className:'num'},fa.cloudBroadband),
+          h('td',{className:'num'},fa.fttrB),
+          h('td',{className:'num'},fa.portableWifi),
+          h('td',{className:'num'},fa.cloudBroadband+fa.fttrB+fa.portableWifi)
+        ))
+      )
+    )
+  ));
+  return h('div',{},frag);
+}
+
+function topItem(idx,name,county,val,unit){
+  var rankCls=idx===0?'gold':idx===1?'silver':idx===2?'bronze':'normal';
+  var color=idx<3?['var(--danger)','var(--warning)','var(--success)'][idx]:'var(--primary)';
+  return h('div',{className:'top-item'},
+    h('span',{className:'rank '+rankCls},String(idx+1)),
+    h('span',{className:'tname'},name),
+    h('span',{className:'tcounty'},county),
+    h('span',{className:'tval',style:'color:'+color},val+unit)
+  );
+}
+
+// ---- SALARY ----
+function renderSalary(vd,ag){
+  var frag=document.createDocumentFragment();
+  var avgComm=Math.round(vd.reduce(function(s,c){return s+c.avgCommission},0)/Math.max(vd.length,1));
+  var totalBase=1500*salaryHC;
+  var totalComm=avgComm*salaryHC;
+  var socialIns=Math.round(totalBase*0.44);
+  var recruitCost=salaryHC*333;
+  var totalCost=totalBase+totalComm+socialIns+recruitCost;
+  var avgDP=ag.totalStaff?Math.round(ag.monthlyDevPoints/ag.totalStaff):0;
+  var roi=totalCost?avgDP*salaryHC/totalCost:0;
+  frag.appendChild(h('div',{className:'stat-grid'},
+    statCard('保底薪资','1,500/人','有责底薪','blue','blue'),
+    statCard('平均提成',fmtNum(avgComm)+'/人','','blue','blue'),
+    statCard('月度团队成本','¥'+fmtNum(totalCost),'含社保及招聘','blue','blue'),
+    statCard('人均积分产出',avgDP+'分/人','','purple','purple')
+  ));
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'薪酬模拟测算'),
+    h('div',{className:'slider-wrap'},
+      h('span',{style:'font-size:13px;color:var(--gray-600)'},'团队规模'),
+      h('input',{type:'range',min:'3',max:'50',value:String(salaryHC),oninput:function(e){salaryHC=+e.target.value;render()}}),
+      h('span',{className:'sval'},salaryHC+'人')
+    ),
+    h('div',{className:'info-panel'},
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'保底工资合计'),h('span',{className:'ival'},'¥'+fmtNum(totalBase))),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'提成合计'),h('span',{className:'ival'},'¥'+fmtNum(totalComm))),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'社保费用(44%)'),h('span',{className:'ival'},'¥'+fmtNum(socialIns))),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'招聘成本(333元/人)'),h('span',{className:'ival'},'¥'+fmtNum(recruitCost))),
+      h('div',{className:'irow',style:'border-top:1px solid #93c5fd;padding-top:6px;margin-top:4px;font-weight:700'},
+        h('span',{className:'ilabel'},'团队月度总成本'),
+        h('span',{className:'ival'},'¥'+fmtNum(totalCost))
+      ),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'预计发展积分产出'),h('span',{className:'ival'},fmtNum(avgDP*salaryHC))),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'人均成本'),h('span',{className:'ival'},'¥'+fmtNum(Math.round(totalCost/Math.max(salaryHC,1))))
+      )
+    )
+  ));
+  var maxPC=Math.max.apply(null,vd.map(function(c){return c.totalStaff?Math.round(c.monthlyDevPoints/c.totalStaff):0}).concat([1]));
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'各区县人均积分'),
+    h('div',{className:'h-bar-chart'},vd.map(function(c){
+      var pc=c.totalStaff?Math.round(c.monthlyDevPoints/c.totalStaff):0;
+      var w=Math.round(pc/maxPC*100);
+      var color=pc/maxPC>=0.7?'var(--primary)':pc/maxPC>=0.4?'var(--warning)':'var(--danger)';
+      return h('div',{className:'h-bar-row'},
+        h('span',{className:'hname'},c.name.substring(0,2)),
+        h('div',{className:'hbar-wrap'},h('div',{className:'hbar-fill',style:'width:'+w+'%;background:'+color})),
+        h('span',{className:'hval'},pc+'分')
+      );
     }))
   ));
   return h('div',{},frag);
@@ -469,21 +820,50 @@ function renderSalary(vd,ag){
 
 // ---- EXIT ----
 function renderExit(vd,ag){
-  const frag=document.createDocumentFragment();
-  const unreached=[];const borderline=[];
-  vd.forEach(c=>c.members.forEach(m=>{if(m.status==='未达标')unreached.push({...m,countyName:c.name});if(m.status==='边缘')borderline.push({...m,countyName:c.name})}));
+  var frag=document.createDocumentFragment();
+  var unreached=[];
+  var borderline=[];
+  vd.forEach(function(c){
+    (c.members||[]).forEach(function(m){
+      if(m.status==='未达标')unreached.push({name:m.name,countyName:c.name,devPoints:m.devPoints,devPointsTarget:m.devPointsTarget,probationDays:m.probationDays});
+      if(m.status==='边缘')borderline.push({name:m.name,countyName:c.name,devPoints:m.devPoints,devPointsTarget:m.devPointsTarget,probationDays:m.probationDays});
+    });
+  });
   frag.appendChild(h('div',{className:'stat-grid'},
     statCard('未达标预警',unreached.length+'人','需及时处理','red','red'),
     statCard('边缘观察',borderline.length+'人','持续关注','orange','orange'),
     statCard('近期退出',ag.exitCount+'人','近30天','blue','blue')
   ));
-  if(unreached.length)frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot',style:'background:var(--danger)'}),'未达标人员预警'),
-    ...unreached.map(m=>h('div',{className:'warn-card red'},h('div',{className:'name'},m.name,' ',h('span',{className:'badge badge-red'},'需处理')),h('div',{className:'info'},h('span',{},'区县: '+m.countyName),h('span',{},'达成率: '+pct(m.monthly,m.target)+'%'),h('span',{},'剩余试用: '+(90-m.probationDays)+'天'))))
-  ));
-  if(borderline.length)frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot',style:'background:var(--warning)'}),'边缘人员观察'),
-    ...borderline.map(m=>h('div',{className:'warn-card orange'},h('div',{className:'name'},m.name,' ',h('span',{className:'badge badge-orange'},'观察')),h('div',{className:'info'},h('span',{},'区县: '+m.countyName),h('span',{},'达成率: '+pct(m.monthly,m.target)+'%'),h('span',{},'剩余试用: '+(90-m.probationDays)+'天'))))
-  ));
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'退出处理流程'),
+  if(unreached.length){
+    var unTitle=h('div',{className:'card-title'},h('span',{className:'dot',style:'background:var(--danger)'},'未达标人员预警'));
+    var unItems=unreached.map(function(m){
+      return h('div',{className:'warn-card red'},
+        h('div',{className:'wname'},m.name+' ',h('span',{className:'badge badge-red'},'需处理')),
+        h('div',{className:'winfo'},
+          h('span',{},'区县: '+m.countyName),
+          h('span',{},'达成率: '+pct(m.devPoints,m.devPointsTarget)+'%'),
+          h('span',{},'剩余试用: '+(90-m.probationDays)+'天')
+        )
+      );
+    });
+    frag.appendChild(h('div',{className:'card'},unTitle,unItems));
+  }
+  if(borderline.length){
+    var blTitle=h('div',{className:'card-title'},h('span',{className:'dot',style:'background:var(--warning)'},'边缘人员观察'));
+    var blItems=borderline.map(function(m){
+      return h('div',{className:'warn-card orange'},
+        h('div',{className:'wname'},m.name+' ',h('span',{className:'badge badge-orange'},'观察')),
+        h('div',{className:'winfo'},
+          h('span',{},'区县: '+m.countyName),
+          h('span',{},'达成率: '+pct(m.devPoints,m.devPointsTarget)+'%'),
+          h('span',{},'剩余试用: '+(90-m.probationDays)+'天')
+        )
+      );
+    });
+    frag.appendChild(h('div',{className:'card'},blTitle,blItems));
+  }
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'退出处理流程'),
     h('div',{className:'step-guide'},
       stepItem(1,'考核记录','收集业绩数据，留存考核记录'),
       stepItem(2,'谈话沟通','与员工面谈，了解原因'),
@@ -494,106 +874,171 @@ function renderExit(vd,ag){
   return h('div',{},frag);
 }
 
-// ---- DATA MANAGER ----
+// ---- DATA MANAGER (city only) ----
 function renderData(vd,ag){
-  const frag=document.createDocumentFragment();
-  const editable=currentUser.role==='city'?data:vd;
-  const editIdx=editable.findIndex(c=>c.id===editCountyId);
-  const c=editIdx>=0?editable[editIdx]:editable[0];
+  if(!canEdit())return h('div',{className:'card'},'无权限');
+  var editable=data;
+  var editIdx=editable.findIndex(function(c){return c.id===editCountyId});
+  var c=editIdx>=0?editable[editIdx]:editable[0];
   if(!c&&editable.length)c=editable[0];
   if(c)editCountyId=c.id;
+  var frag=document.createDocumentFragment();
   frag.appendChild(h('div',{className:'toolbar'},
-    h('button',{className:'btn btn-sm btn-outline',onClick:handleExport},'导出数据'),
-    h('button',{className:'btn btn-sm btn-outline',onClick:handleImport},'粘贴导入'),
+    h('button',{className:'btn btn-sm btn-outline',onclick:handleExport},'导出数据'),
+    h('button',{className:'btn btn-sm btn-outline',onclick:handleImport},'粘贴导入'),
     h('span',{className:'hint'},'数据自动保存到浏览器本地')
   ));
-  // COUNTY BUTTONS
   frag.appendChild(h('div',{className:'county-filter'},
-    ...editable.map(co=>h('button',{className:'btn btn-sm btn-outline'+(co.id===editCountyId?' active':''),onClick:()=>{editCountyId=co.id;render()}},co.name))
+    editable.map(function(co){
+      return h('button',{className:'btn btn-sm btn-outline'+(co.id===editCountyId?' active':''),onclick:(function(cid){return function(){editCountyId=cid;render()}})(co.id)},co.name);
+    })
   ));
   if(!c)return h('div',{},frag);
-  // BASE DATA
-  const baseFields=[
+  var baseFields=[
     ['recruitTarget','招聘目标'],['recruitCurrent','已到岗'],['resumesReceived','收取简历'],['interviewsDone','完成面试'],
-    ['totalStaff','在岗人数'],['probationStaff','试用期'],['confirmedStaff','已转正'],['monthlyRevenue','月营收'],
-    ['revenueTarget','营收目标'],['baseSalary','保底薪资'],['avgCommission','平均提成'],['socialInsurance','社保费用'],
+    ['totalStaff','在岗人数'],['probationStaff','试用期'],['confirmedStaff','已转正'],
+    ['monthlyDevPoints','月发展积分'],['devPointsTarget','积分目标'],
+    ['cloudBroadband','云商宽发展'],['fttrB','FTTR-B发展'],['portableWifi','随身WiFi发展'],
+    ['baseSalary','保底薪资'],['avgCommission','平均提成'],['socialInsurance','社保费用'],
     ['warningCount','预警人数'],['exitCount','退出人数']
   ];
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),c.name+' - 基础数据'),
-    h('div',{className:'edit-grid'},...baseFields.map(([k,l])=>h('div',{className:'edit-field'},h('label',{},l),h('input',{type:'number',value:String(c[k]||0),onChange:e=>{updateField(c.id,k,+e.target.value)}}))))
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),c.name+' - 基础数据'),
+    h('div',{className:'edit-grid'},
+      baseFields.map(function(fl){
+        return h('div',{className:'edit-field'},
+          h('label',{},fl[1]),
+          h('input',{type:'number',value:String(c[fl[0]]||0),onchange:(function(cid,fk){return function(e){updateField(cid,fk,+e.target.value)}})(c.id,fl[0])})
+        );
+      })
+    )
   ));
-  // MEMBERS
-  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'团队成员 ('+c.members.length+')',
-    h('button',{className:'btn btn-sm btn-success',style:'margin-left:auto',onClick:()=>addMember(c.id)},'+ 添加成员')),
-    ...c.members.map((m,i)=>{
-      const r=pct(m.monthly,m.target);
-      return h('div',{className:'member-card'},h('div',{className:'top'},
-        h('span',{},h('strong',{},m.name),' ',h('span',{className:'badge badge-'+(m.status==='达标'?'green':m.status==='边缘'?'orange':'red')},m.status+' '+r+'%')),
-        h('button',{className:'btn btn-sm btn-danger',onClick:()=>removeMember(c.id,i)},'删除')
-      ),h('div',{className:'fields'},
-        fieldEdit('姓名','text',m.name,v=>updateMember(c.id,i,'name',v)),
-        fieldEdit('月营收','number',String(m.monthly),v=>updateMember(c.id,i,'monthly',+v)),
-        fieldEdit('目标','number',String(m.target),v=>updateMember(c.id,i,'target',+v)),
-        fieldEdit('试用天数','number',String(m.probationDays),v=>updateMember(c.id,i,'probationDays',+v))
-      ))
+  frag.appendChild(h('div',{className:'card'},
+    h('div',{className:'card-title'},h('span',{className:'dot'}),'团队成员 ('+c.members.length+')',
+      h('button',{className:'btn btn-sm btn-success',style:'margin-left:auto',onclick:(function(cid){return function(){addMember(cid)}})(c.id)},'+ 添加成员')
+    ),
+    c.members.map(function(m,i){
+      var r=pct(m.devPoints,m.devPointsTarget);
+      return h('div',{className:'member-card'},
+        h('div',{className:'mtop'},
+          h('span',{},h('strong',{},m.name),' ',h('span',{className:'badge badge-'+(m.status==='达标'?'green':m.status==='边缘'?'orange':'red')},m.status+' '+r+'%')),
+          h('button',{className:'btn btn-sm btn-danger',onclick:(function(cid,idx){return function(){removeMember(cid,idx)}})(c.id,i)},'删除')
+        ),
+        h('div',{className:'mfields'},
+          mfieldEdit('姓名','text',m.name,c.id,i,'name'),
+          mfieldEdit('发展积分','number',String(m.devPoints),c.id,i,'devPoints'),
+          mfieldEdit('积分目标','number',String(m.devPointsTarget),c.id,i,'devPointsTarget'),
+          mfieldEdit('试用天数','number',String(m.probationDays),c.id,i,'probationDays'),
+          mfieldEdit('云商宽','number',String(m.cloudBroadband||0),c.id,i,'cloudBroadband'),
+          mfieldEdit('FTTR-B','number',String(m.fttrB||0),c.id,i,'fttrB'),
+          mfieldEdit('随身WiFi','number',String(m.portableWifi||0),c.id,i,'portableWifi')
+        )
+      );
     })
   ));
   return h('div',{},frag);
 }
 
-// ============ HELPERS ============
+// ============ SHARED HELPERS ============
 function statCard(label,value,extra,barColor,valueColor){
-  return h('div',{className:'stat-card '+barColor},h('div',{className:'label'},label),h('div',{className:'value '+valueColor},value),h('div',{className:'extra'},extra))
+  return h('div',{className:'stat-card '+barColor},
+    h('div',{className:'label'},label),
+    h('div',{className:'value '+valueColor},value),
+    h('div',{className:'extra'},extra)
+  );
 }
 function countyFilter(vd){
   return h('div',{className:'county-filter'},
-    h('button',{className:'btn btn-sm btn-outline'+(selectedCounty==='all'?' active':''),onClick:()=>{selectedCounty='all';render()}},'全部'),
-    ...vd.map(c=>h('button',{className:'btn btn-sm btn-outline'+(selectedCounty===c.id?' active':''),onClick:()=>{selectedCounty=c.id;render()}},c.name))
-  )
+    h('button',{className:'btn btn-sm btn-outline'+(selectedCounty==='all'?' active':''),onclick:function(){selectedCounty='all';render()}},'全部'),
+    vd.map(function(c){
+      return h('button',{className:'btn btn-sm btn-outline'+(selectedCounty===c.id?' active':''),onclick:(function(cid){return function(){selectedCounty=cid;render()}})(c.id)},c.name);
+    })
+  );
 }
 function funnelStep(label,count,max,color){
-  const w=Math.max(Math.round(count/max*100),5);
-  const pct2=max?Math.round(count/max*100):0;
-  return h('div',{className:'funnel-step'},h('span',{className:'label'},label),h('div',{className:'bar',style:'width:'+w+'%;background:'+color},count),h('span',{className:'pct'},pct2+'%'))
+  var w=Math.max(Math.round(count/max*100),5);
+  var p2=max?Math.round(count/max*100):0;
+  return h('div',{className:'funnel-step'},
+    h('span',{className:'flabel'},label),
+    h('div',{className:'bar',style:'width:'+w+'%;background:'+color},String(count)),
+    h('span',{className:'fpct'},p2+'%')
+  );
 }
-function stepItem(n,title,desc){return h('div',{className:'step-item'},h('div',{className:'num'},String(n)),h('div',{className:'title'},title),h('div',{className:'desc'},desc))}
-function fieldEdit(label,type,value,onChange){return h('div',{className:'field'},h('label',{},label),h('input',{type:type,value:value,onChange:e=>onChange(e.target.value)}))}
+function stepItem(n,title,desc){
+  return h('div',{className:'step-item'},
+    h('div',{className:'snum'},String(n)),
+    h('div',{className:'stitle'},title),
+    h('div',{className:'sdesc'},desc)
+  );
+}
+function mfieldEdit(label,type,value,cid,idx,field){
+  return h('div',{className:'mfield'},
+    h('label',{},label),
+    h('input',{type:type,value:value,onchange:function(e){updateMember(cid,idx,field,type==='number'?+e.target.value:e.target.value)}})
+  );
+}
 
 // ============ DATA OPERATIONS ============
 function updateField(countyId,field,val){
-  const c=data.find(d=>d.id===countyId);if(c){c[field]=val;saveData(data);render()}
+  var c=data.find(function(d){return d.id===countyId});
+  if(c){c[field]=val;saveData(data);render()}
 }
 function updateMember(countyId,idx,field,val){
-  const c=data.find(d=>d.id===countyId);if(c&&c.members[idx]){
+  var c=data.find(function(d){return d.id===countyId});
+  if(c&&c.members[idx]){
     c.members[idx][field]=val;
-    if(field==='monthly'||field==='target'){const m=c.members[idx];const r=m.target?pct(m.monthly,m.target):0;m.status=r>=100?'达标':r>=80?'边缘':'未达标'}
-    saveData(data);render()
+    if(field==='devPoints'||field==='devPointsTarget'){
+      var m=c.members[idx];
+      var r=m.devPointsTarget?pct(m.devPoints,m.devPointsTarget):0;
+      m.status=r>=100?'达标':r>=80?'边缘':'未达标';
+    }
+    // Recalculate county product totals
+    if(field==='cloudBroadband'||field==='fttrB'||field==='portableWifi'){
+      c.cloudBroadband=c.members.reduce(function(s,m){return s+(m.cloudBroadband||0)},0);
+      c.fttrB=c.members.reduce(function(s,m){return s+(m.fttrB||0)},0);
+      c.portableWifi=c.members.reduce(function(s,m){return s+(m.portableWifi||0)},0);
+    }
+    saveData(data);render();
   }
 }
 function addMember(countyId){
-  const c=data.find(d=>d.id===countyId);if(c){
-    c.members.push({name:'新员工',monthly:0,target:8000,probationDays:0,status:'未达标'});
-    c.totalStaff++;c.probationStaff++;c.recruitCurrent++;saveData(data);render()
+  var c=data.find(function(d){return d.id===countyId});
+  if(c){
+    c.members.push({name:'新员工',devPoints:0,devPointsTarget:8000,probationDays:0,status:'未达标',cloudBroadband:0,fttrB:0,portableWifi:0});
+    c.totalStaff++;c.probationStaff++;c.recruitCurrent++;
+    saveData(data);render();
   }
 }
 function removeMember(countyId,idx){
-  const c=data.find(d=>d.id===countyId);if(c&&c.members.length>idx){
-    c.members.splice(idx,1);c.totalStaff=Math.max(0,c.totalStaff-1);c.probationStaff=Math.max(0,c.probationStaff-1);c.recruitCurrent=Math.max(0,c.recruitCurrent-1);saveData(data);render()
+  var c=data.find(function(d){return d.id===countyId});
+  if(c&&c.members.length>idx){
+    c.members.splice(idx,1);
+    c.totalStaff=Math.max(0,c.totalStaff-1);
+    c.probationStaff=Math.max(0,c.probationStaff-1);
+    c.recruitCurrent=Math.max(0,c.recruitCurrent-1);
+    c.cloudBroadband=c.members.reduce(function(s,m){return s+(m.cloudBroadband||0)},0);
+    c.fttrB=c.members.reduce(function(s,m){return s+(m.fttrB||0)},0);
+    c.portableWifi=c.members.reduce(function(s,m){return s+(m.portableWifi||0)},0);
+    saveData(data);render();
   }
 }
 function handleExport(){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='商客直销数据_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('数据已导出')
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='商客直销数据_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(url);toast('数据已导出');
 }
 function handleImport(){
-  const txt=prompt('请粘贴导出的JSON数据：');
+  var txt=prompt('请粘贴导出的JSON数据：');
   if(!txt)return;
-  try{const d=JSON.parse(txt);if(!Array.isArray(d))throw 0;data=d;saveData(data);toast('导入成功');render()}
+  try{var d=JSON.parse(txt);if(!Array.isArray(d))throw 0;data=d;saveData(data);toast('导入成功');render()}
   catch(e){alert('数据格式错误，请粘贴正确的JSON')}
 }
 
 // ============ INIT ============
-loadAuth();render();
+loadAuth();
+render();
 </script>
 </body>
 </html>
