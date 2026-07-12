@@ -401,6 +401,13 @@ function render(){
   app.innerHTML='';
   if(!currentUser){
     app.appendChild(renderLogin());
+    // Set saved credentials after DOM is ready
+    var saved=loadCreds();
+    if(saved){
+      $('#login-user').value=saved.u;
+      $('#login-pwd').value=saved.p;
+      $('#remember-me').checked=true;
+    }
   }else{
     app.appendChild(renderDashboard());
   }
@@ -408,10 +415,6 @@ function render(){
 
 // ============ LOGIN ============
 function renderLogin(){
-  var saved=loadCreds();
-  var uid=saved?saved.u:'';
-  var pwd=saved?saved.p:'';
-  var chk=saved?true:false;
   return h('div',{className:'login-page'},
     h('div',{className:'login-card'},
       h('div',{className:'logo-area'},h('div',{className:'icon'},'商')),
@@ -419,14 +422,14 @@ function renderLogin(){
       h('div',{className:'sub'},DEPT_NAME),
       h('div',{className:'form-group'},
         h('label',{},'账号'),
-        h('input',{id:'login-user',type:'text',placeholder:'请输入账号',autocomplete:'username',value:uid})
+        h('input',{id:'login-user',type:'text',placeholder:'请输入账号',autocomplete:'username'})
       ),
       h('div',{className:'form-group'},
         h('label',{},'密码'),
-        h('input',{id:'login-pwd',type:'password',placeholder:'请输入密码',autocomplete:'current-password',value:pwd})
+        h('input',{id:'login-pwd',type:'password',placeholder:'请输入密码',autocomplete:'current-password'})
       ),
       h('label',{className:'remember-row'},
-        h('input',{id:'remember-me',type:'checkbox',checked:chk?'checked':null}),
+        h('input',{id:'remember-me',type:'checkbox'}),
         ' 记住账号密码'
       ),
       h('button',{className:'btn btn-primary',onclick:handleLogin},'登 录'),
