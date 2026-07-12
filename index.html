@@ -256,7 +256,7 @@ let editCountyId=data[0].id;
 
 // ============ RENDER ============
 function $(s){return document.querySelector(s)}
-function h(tag,attrs,...children){const e=document.createElement(tag);if(attrs)Object.entries(attrs).forEach(([k,v])=>{if(k==='style'&&typeof v==='object')Object.assign(e.style,v);else if(k.startsWith('on'))e[k]=v;else if(k==='className')e.className=v;else e.setAttribute(k,v)});children.flat(Infinity).forEach(c=>{if(c!=null)e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
+function h(tag,attrs,...children){const e=document.createElement(tag);if(attrs)Object.entries(attrs).forEach(([k,v])=>{if(k==='style'&&typeof v==='object')Object.assign(e.style,v);else if(k.startsWith('on'))e[k.toLowerCase()]=v;else if(k==='className')e.className=v;else e.setAttribute(k,v)});children.flat(Infinity).forEach(c=>{if(c!=null)e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
 
 function aggregate(d){
@@ -275,7 +275,7 @@ function renderLogin(){
     h('button',{className:'btn btn-primary',onClick:handleLogin},'登 录'),
     h('div',{id:'login-error',className:'login-error'}),
     h('div',{className:'login-hint'},'市公司账号: admin / xy2026 | 区县账号: 区县拼音 / sk2026')
-  ))}
+  ));
 }
 function handleLogin(){
   const u=$('#login-user').value.trim(),p=$('#login-pwd').value;
@@ -520,7 +520,7 @@ function renderData(vd,ag){
     ['warningCount','预警人数'],['exitCount','退出人数']
   ];
   frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),c.name+' - 基础数据'),
-    h('div',{className:'edit-grid'},...baseFields.map(([k,l])=>h('div',{className:'edit-field'},h('label',{},l),h('input',{type:'number',value:String(c[k]||0),onChange:e=>{updateField(c.id,k,+e.target.value)}})))
+    h('div',{className:'edit-grid'},...baseFields.map(([k,l])=>h('div',{className:'edit-field'},h('label',{},l),h('input',{type:'number',value:String(c[k]||0),onChange:e=>{updateField(c.id,k,+e.target.value)}}))))
   ));
   // MEMBERS
   frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'团队成员 ('+c.members.length+')',
