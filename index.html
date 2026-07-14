@@ -161,6 +161,24 @@ body{font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Helvetica Neue"
 .county-mini-card .cstats{font-size:11px;color:var(--gray-500)}
 .county-mini-card .cstats span{display:block}
 .product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.notice-card{background:#fff;border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--gray-200);border-left:4px solid var(--primary)}
+.notice-card.urgent{border-left-color:var(--danger)}
+.notice-card.case{border-left-color:var(--success)}
+.notice-card .nhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.notice-card .ntitle{font-size:15px;font-weight:600;color:var(--gray-800)}
+.notice-card .nmeta{font-size:11px;color:var(--gray-400);margin-bottom:8px}
+.notice-card .nbody{font-size:13px;color:var(--gray-600);line-height:1.7;white-space:pre-wrap}
+.notice-card .nfooter{font-size:11px;color:var(--gray-400);margin-top:8px;text-align:right}
+.rank-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:6px}
+.rank-row.me{background:var(--primary-light);border:1px solid #93c5fd}
+.rank-row.other{background:var(--gray-50);border:1px solid var(--gray-100)}
+.rank-row .rnum{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.rank-row .rname{font-size:14px;font-weight:500;flex:1}
+.rank-row .rcounty{font-size:11px;color:var(--gray-400)}
+.rank-row .rval{font-size:15px;font-weight:700;min-width:50px;text-align:right}
+.my-info-card{background:linear-gradient(135deg,var(--primary-light),#eff6ff);border:1px solid #93c5fd;border-radius:10px;padding:16px;margin-bottom:14px}
+.my-info-card .mic-name{font-size:18px;font-weight:700;color:var(--primary-dark)}
+.my-info-card .mic-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
 @media(max-width:640px){.header h1{font-size:15px}.stat-grid{grid-template-columns:repeat(2,1fr)}.stat-card .value{font-size:18px}.content{padding:10px}.edit-grid{grid-template-columns:1fr 1fr}.county-grid{grid-template-columns:repeat(2,1fr)}.tab-btn{font-size:12px;padding:10px 4px}.product-grid{grid-template-columns:1fr}.member-card .mfields{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -173,6 +191,8 @@ var APP_TITLE='商客直销队伍建设数据看板';
 var STORAGE_KEY='sk_dashboard_v4';
 var AUTH_KEY='sk_auth_v4';
 var CREDS_KEY='sk_creds_v4';
+var SALES_ACCT_KEY='sk_sales_accts_v4';
+var NOTICE_KEY='sk_notices_v4';
 
 var COUNTIES=[
   {id:'shihe',name:'浉河区'},{id:'pingqiao',name:'平桥区'},
@@ -197,6 +217,10 @@ var TAB_LIST=[
   {key:'overview',label:'概览'},{key:'recruit',label:'招聘'},
   {key:'performance',label:'考核'},{key:'product',label:'产品'},
   {key:'salary',label:'薪酬'},{key:'exit',label:'预警'}
+];
+var SALES_TABS=[
+  {key:'mypoints',label:'我的积分'},{key:'myrank',label:'我的排名'},
+  {key:'notices',label:'通知公告'}
 ];
 
 // ============ DATA ============
@@ -293,18 +317,27 @@ function loadData(){try{var d=localStorage.getItem(STORAGE_KEY);return d?JSON.pa
 function saveData(d){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}}
 function fmtNum(n){return n.toLocaleString('zh-CN')}
 function pct(a,b){return b?Math.round(a/b*100):0}
+function loadSalesAccounts(){try{var s=localStorage.getItem(SALES_ACCT_KEY);return s?JSON.parse(s):[]}catch(e){return[]}}
+function saveSalesAccounts(a){try{localStorage.setItem(SALES_ACCT_KEY,JSON.stringify(a))}catch(e){}}
+function loadNotices(){try{var n=localStorage.getItem(NOTICE_KEY);return n?JSON.parse(n):[]}catch(e){return[]}}
+function saveNotices(n){try{localStorage.setItem(NOTICE_KEY,JSON.stringify(n))}catch(e){}}
 
 // ============ AUTH ============
 var currentUser=null;
-function loadAuth(){try{var a=localStorage.getItem(AUTH_KEY);if(a){var p=JSON.parse(a);var acc=ACCOUNTS.find(function(x){return x.id===p.id});if(acc){currentUser={};for(var k in acc)currentUser[k]=acc[k];return true}}}catch(e){}return false}
+var salesAccounts=loadSalesAccounts();
+var notices=loadNotices();
+function findAccount(uid){var a=ACCOUNTS.find(function(x){return x.id===uid});if(a)return a;var s=salesAccounts.find(function(x){return x.id===uid});if(s)return s;return null}
+function loadAuth(){try{var a=localStorage.getItem(AUTH_KEY);if(a){var p=JSON.parse(a);var acc=findAccount(p.id);if(acc){currentUser={};for(var k in acc)currentUser[k]=acc[k];return true}}}catch(e){}return false}
 function saveAuth(id){try{localStorage.setItem(AUTH_KEY,JSON.stringify({id:id}))}catch(e){}}
 function clearAuth(){localStorage.removeItem(AUTH_KEY);currentUser=null}
-function doLogin(uid,pwd){var acc=ACCOUNTS.find(function(a){return a.id===uid&&a.password===pwd});if(acc){currentUser={};for(var k in acc)currentUser[k]=acc[k];saveAuth(uid);return true}return false}
+function doLogin(uid,pwd){var acc=findAccount(uid);if(acc&&acc.password===pwd){currentUser={};for(var k in acc)currentUser[k]=acc[k];saveAuth(uid);return true}return false}
 function doLogout(){if(!document.getElementById('remember-me')||!document.getElementById('remember-me').checked){localStorage.removeItem(CREDS_KEY)}clearAuth();render()}
 function saveCreds(uid,pwd){try{localStorage.setItem(CREDS_KEY,JSON.stringify({u:uid,p:pwd}))}catch(e){}}
 function loadCreds(){try{var c=localStorage.getItem(CREDS_KEY);return c?JSON.parse(c):null}catch(e){return null}}
-function getVisibleCounties(d){if(!currentUser)return[];if(currentUser.role==='city')return d;return d.filter(function(x){return x.id===currentUser.countyId})}
+function getVisibleCounties(d){if(!currentUser)return[];if(currentUser.role==='city')return d;if(currentUser.role==='sales')return d.filter(function(x){return x.id===currentUser.countyId});return d.filter(function(x){return x.id===currentUser.countyId})}
 function canEdit(){return currentUser&&currentUser.role==='city'}
+function isSalesManager(){return currentUser&&currentUser.role==='sales'}
+function getMyMember(){if(!isSalesManager())return null;var c=data.find(function(d){return d.id===currentUser.countyId});if(!c)return null;return c.members.find(function(m){return m.name===currentUser.memberName})||null}
 
 // ============ STATE ============
 var data=loadData()||createInitialData();
@@ -312,6 +345,7 @@ if(data.length!==8){data=createInitialData();saveData(data)}
 var activeTab='overview';
 var selectedCounty='all';
 var editCountyId=data[0].id;
+var editNoticeIdx=-1;
 
 // ============ RENDER ============
 function $(s){return document.querySelector(s)}
@@ -343,9 +377,15 @@ function renderLogin(){
 function handleLogin(){var u=$('#login-user').value.trim(),p=$('#login-pwd').value;if(doLogin(u,p)){var rm=$('#remember-me');if(rm&&rm.checked)saveCreds(u,p);else localStorage.removeItem(CREDS_KEY);render()}else{$('#login-error').textContent='账号或密码错误'}}
 
 function renderDashboard(){
+  var isSales=isSalesManager();
   var vd=getVisibleCounties(data);
   var ag=aggMulti(vd);
-  var tabs=canEdit()?TAB_LIST.concat([{key:'data',label:'管理'}]):TAB_LIST;
+  var tabs;
+  if(isSales){tabs=SALES_TABS}
+  else{tabs=canEdit()?TAB_LIST.concat([{key:'data',label:'管理'}]):TAB_LIST}
+  // 确保activeTab在当前角色tabs中
+  var tabKeys=tabs.map(function(t){return t.key});
+  if(tabKeys.indexOf(activeTab)<0){activeTab=tabs[0].key}
   var root=h('div',{className:'dashboard'},
     h('header',{className:'header'},
       h('div',{className:'header-top'},
@@ -354,6 +394,9 @@ function renderDashboard(){
           h('span',{className:'user-badge'},currentUser.name),
           !canEdit()?h('button',{className:'btn-capture',onclick:captureLongImage},'长图'):null,
           h('button',{className:'btn-logout',onclick:doLogout},'退出'))),
+      isSales?h('div',{className:'header-badges'},
+        h('span',{className:'header-badge'},currentUser.countyName||''),
+        h('span',{className:'header-badge'},'我的积分 '+fmtNum(getMyMember()?(getMyMember().devPoints||0):0))):
       h('div',{className:'header-badges'},
         h('span',{className:'header-badge'},'在岗 '+ag.totalStaff+' 人'),
         h('span',{className:'header-badge'},'积分 '+fmtNum(ag.monthlyDevPoints)),
@@ -362,8 +405,12 @@ function renderDashboard(){
     h('div',{className:'content',id:'tab-content'})
   );
   var cont=root.querySelector('#tab-content');
-  var renderers={overview:renderOverview,recruit:renderRecruit,performance:renderPerformance,product:renderProduct,salary:renderSalary,exit:renderExit,data:renderData};
-  if(renderers[activeTab])cont.appendChild(renderers[activeTab](vd,ag));
+  var renderers={overview:renderOverview,recruit:renderRecruit,performance:renderPerformance,product:renderProduct,salary:renderSalary,exit:renderExit,data:renderData,
+    mypoints:renderMyPoints,myrank:renderMyRank,notices:renderNotices};
+  if(renderers[activeTab]){
+    if(isSales)cont.appendChild(renderers[activeTab](vd,ag));
+    else cont.appendChild(renderers[activeTab](vd,ag));
+  }
   return root;
 }
 
@@ -604,6 +651,154 @@ function renderData(vd,ag){
           mf('提成','number',String(m.commission||0),c.id,i,'commission'),
           mf('社保','number',String(m.socialInsurance||0),c.id,i,'socialInsurance'),
           mf('试用天数','number',String(m.probationDays),c.id,i,'probationDays')))})));
+  // ---- 直销经理账号管理 ----
+  var saCards=salesAccounts.map(function(sa,i){
+    return h('div',{className:'member-card'},
+      h('div',{className:'mtop'},h('span',{},h('strong',{},sa.name),' ',h('span',{className:'badge badge-blue'},sa.countyName)),
+        h('button',{className:'btn btn-sm btn-danger',onclick:(function(idx){return function(){removeSalesAccount(idx)}})(i)},'删除')),
+      h('div',{className:'mfields'},
+        h('div',{className:'mfield'},h('label',{},'登录账号'),h('input',{type:'text',value:sa.id,onchange:(function(idx){return function(e){updateSalesAccount(idx,'id',e.target.value)}})(i)})),
+        h('div',{className:'mfield'},h('label',{},'密码'),h('input',{type:'text',value:sa.password,onchange:(function(idx){return function(e){updateSalesAccount(idx,'password',e.target.value)}})(i)})),
+        h('div',{className:'mfield'},h('label',{},'员工姓名'),h('input',{type:'text',value:sa.memberName,onchange:(function(idx){return function(e){updateSalesAccount(idx,'memberName',e.target.value)}})(i)})),
+        h('div',{className:'mfield'},h('label',{},'所属区县'),
+          h('select',{style:'padding:4px 8px;border:1px solid var(--gray-200);border-radius:4px;font-size:13px;width:100%;font-family:inherit',onchange:(function(idx){return function(e){updateSalesAccount(idx,'countyId',e.target.value)}})(i)},
+            COUNTIES.map(function(co){return h('option',{value:co.id,selected:sa.countyId===co.id},co.name)})))));
+  });
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'直销经理账号管理 ('+salesAccounts.length+')',
+    h('button',{className:'btn btn-sm btn-success',style:'margin-left:auto',onclick:addSalesAccount},'+ 添加账号')),
+    h('div',{style:'font-size:12px;color:var(--gray-400);margin-bottom:8px'},'直销经理登录后可查看个人积分、全市排名和通知公告'),
+    saCards.length?saCards:h('div',{style:'text-align:center;padding:20px;color:var(--gray-400)'},'暂无直销经理账号')));
+  // ---- 通知公告管理 ----
+  var noticeCards=notices.map(function(n,i){
+    return h('div',{className:'notice-card '+(n.type==='urgent'?'urgent':n.type==='case'?'case':'')},
+      h('div',{className:'nhead'},
+        h('input',{type:'text',value:n.title,style:'flex:1;font-size:15px;font-weight:600;border:1px solid var(--gray-200);border-radius:4px;padding:4px 8px',onchange:(function(idx){return function(e){updateNotice(idx,'title',e.target.value)}})(i)}),
+        h('button',{className:'btn btn-sm btn-danger',onclick:(function(idx){return function(){removeNotice(idx)}})(i)},'删除')),
+      h('div',{className:'mfields',style:'margin:6px 0'},
+        h('div',{className:'mfield'},h('label',{},'类型'),
+          h('select',{style:'padding:4px 8px;border:1px solid var(--gray-200);border-radius:4px;font-size:13px;font-family:inherit',onchange:(function(idx){return function(e){updateNotice(idx,'type',e.target.value)}})(i)},
+            h('option',{value:'normal',selected:n.type==='normal'},'通知公告'),
+            h('option',{value:'urgent',selected:n.type==='urgent'},'紧急通知'),
+            h('option',{value:'case',selected:n.type==='case'},'优秀案例'))),
+        h('div',{className:'mfield'},h('label',{},'发布人'),h('input',{type:'text',value:n.author||'',onchange:(function(idx){return function(e){updateNotice(idx,'author',e.target.value)}})(i)}))),
+      h('textarea',{style:'width:100%;min-height:80px;border:1px solid var(--gray-200);border-radius:4px;padding:8px;font-size:13px;font-family:inherit;margin-top:4px',onchange:(function(idx){return function(e){updateNotice(idx,'content',e.target.value)}})(i)},n.content||''));
+  });
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'通知公告管理 ('+notices.length+')',
+    h('button',{className:'btn btn-sm btn-success',style:'margin-left:auto',onclick:addNotice},'+ 新建公告')),
+    h('div',{style:'font-size:12px;color:var(--gray-400);margin-bottom:8px'},'发布的通知公告和案例将展示在直销经理的「通知公告」页面'),
+    noticeCards.length?noticeCards:h('div',{style:'text-align:center;padding:20px;color:var(--gray-400)'},'暂无通知公告')));
+  return h('div',{},frag);
+}
+
+// ---- SALES: MY POINTS ----
+function renderMyPoints(vd,ag){
+  var m=getMyMember();
+  if(!m)return h('div',{className:'card'},'未找到您的个人信息，请联系管理员');
+  var r=pct(m.devPoints,m.devPointsTarget);
+  var frag=document.createDocumentFragment();
+  frag.appendChild(h('div',{className:'my-info-card'},
+    h('div',{className:'mic-name'},m.name),
+    h('div',{className:'mic-row'},h('span',{},'所属区县'),h('span',{style:'font-weight:600'},currentUser.countyName||'')),
+    h('div',{className:'mic-row'},h('span',{},'考核状态'),h('span',{style:'font-weight:600;color:'+(m.status==='达标'?'var(--success)':m.status==='边缘'?'var(--warning)':'var(--danger)')},m.status+' '+r+'%')),
+    h('div',{className:'mic-row'},h('span',{},'试用天数'),h('span',{style:'font-weight:600'},m.probationDays+'/90天'))));
+  frag.appendChild(h('div',{className:'stat-grid'},
+    statCard('发展积分',fmtNum(m.devPoints||0),'目标'+fmtNum(m.devPointsTarget||0),'blue','blue'),
+    statCard('达成率',r+'%',r>=100?'已达标':r>=80?'边缘':'未达标','blue',r>=100?'green':r>=80?'orange':'red'),
+    statCard('云商宽',(m.cloudBroadband||0)+'户','','purple','purple'),
+    statCard('FTTR-B',(m.fttrB||0)+'户','','purple','purple'),
+    statCard('随身WiFi',(m.portableWifi||0)+'户','','purple','purple'),
+    statCard('试用剩余',(90-(m.probationDays||0))+'天','','orange','orange')));
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'我的积分进度'),
+    h('div',{style:'margin:10px 0'},
+      h('div',{style:'display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px'},
+        h('span',{},'当前 '+fmtNum(m.devPoints||0)+' 分'),h('span',{},'目标 '+fmtNum(m.devPointsTarget||0)+' 分')),
+      h('div',{className:'progress-bar',style:'width:100%;height:16px'},
+        h('div',{className:'fill '+(r>=100?'green':r>=80?'orange':'red'),style:'width:'+Math.min(r,100)+'%'})))));
+  var myPay=(m.baseSalary||0)+(m.commission||0)+(m.socialInsurance||0);
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'我的薪酬明细'),
+    h('div',{className:'info-panel'},
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'保底工资'),h('span',{className:'ival'},'¥'+fmtNum(m.baseSalary||0))),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'提成'),h('span',{className:'ival'},'¥'+fmtNum(m.commission||0))),
+      h('div',{className:'irow'},h('span',{className:'ilabel'},'社保'),h('span',{className:'ival'},'¥'+fmtNum(m.socialInsurance||0))),
+      h('div',{className:'irow',style:'border-top:1px solid #93c5fd;padding-top:6px;margin-top:4px;font-weight:700'},h('span',{className:'ilabel'},'月度合计'),h('span',{className:'ival'},'¥'+fmtNum(myPay))))));
+  return h('div',{},frag);
+}
+
+// ---- SALES: MY RANK ----
+function renderMyRank(vd,ag){
+  var me=getMyMember();
+  if(!me)return h('div',{className:'card'},'未找到您的个人信息，请联系管理员');
+  var allM=[];
+  data.forEach(function(c){(c.members||[]).forEach(function(m){
+    allM.push({name:m.name,countyName:c.name,countyId:c.id,devPoints:m.devPoints||0,cloudBroadband:m.cloudBroadband||0,fttrB:m.fttrB||0,portableWifi:m.portableWifi||0,isMe:m.name===currentUser.memberName&&c.id===currentUser.countyId})
+  })});
+  var frag=document.createDocumentFragment();
+  // 积分排名
+  var dpRank=allM.slice().sort(function(a,b){return b.devPoints-a.devPoints});
+  var myDpIdx=dpRank.findIndex(function(x){return x.isMe});
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot'}),'发展积分全市排名'),
+    h('div',{style:'text-align:center;margin:10px 0'},
+      h('span',{style:'font-size:36px;font-weight:700;color:var(--primary)'},'第'+(myDpIdx+1)+'名'),
+      h('span',{style:'font-size:14px;color:var(--gray-500);margin-left:10px'},'共'+allM.length+'人')),
+    dpRank.slice(0,20).map(function(x,i){
+      var rc=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+      return h('div',{className:'rank-row '+(x.isMe?'me':'other')},
+        h('span',{className:'rank '+rc},String(i+1)),
+        h('span',{className:'rname'},x.name+(x.isMe?' (我)':'')),
+        h('span',{className:'rcounty'},x.countyName),
+        h('span',{className:'rval',style:'color:var(--primary)'},fmtNum(x.devPoints)))
+    })));
+  // 云商宽排名
+  var cbRank=allM.slice().sort(function(a,b){return b.cloudBroadband-a.cloudBroadband});
+  var myCbIdx=cbRank.findIndex(function(x){return x.isMe});
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot',style:'background:#7c3aed'}),'云商宽发展全市排名'),
+    h('div',{style:'text-align:center;margin:10px 0'},
+      h('span',{style:'font-size:36px;font-weight:700;color:#7c3aed'},'第'+(myCbIdx+1)+'名'),
+      h('span',{style:'font-size:14px;color:var(--gray-500);margin-left:10px'},'共'+allM.length+'人')),
+    cbRank.slice(0,10).map(function(x,i){
+      var rc=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+      return h('div',{className:'rank-row '+(x.isMe?'me':'other')},
+        h('span',{className:'rank '+rc},String(i+1)),
+        h('span',{className:'rname'},x.name+(x.isMe?' (我)':'')),
+        h('span',{className:'rcounty'},x.countyName),
+        h('span',{className:'rval',style:'color:#7c3aed'},x.cloudBroadband+'户'))
+    })));
+  // FTTR-B排名
+  var ftRank=allM.slice().sort(function(a,b){return b.fttrB-a.fttrB});
+  var myFtIdx=ftRank.findIndex(function(x){return x.isMe});
+  frag.appendChild(h('div',{className:'card'},h('div',{className:'card-title'},h('span',{className:'dot',style:'background:#7c3aed'}),'FTTR-B发展全市排名'),
+    h('div',{style:'text-align:center;margin:10px 0'},
+      h('span',{style:'font-size:36px;font-weight:700;color:#7c3aed'},'第'+(myFtIdx+1)+'名'),
+      h('span',{style:'font-size:14px;color:var(--gray-500);margin-left:10px'},'共'+allM.length+'人')),
+    ftRank.slice(0,10).map(function(x,i){
+      var rc=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+      return h('div',{className:'rank-row '+(x.isMe?'me':'other')},
+        h('span',{className:'rank '+rc},String(i+1)),
+        h('span',{className:'rname'},x.name+(x.isMe?' (我)':'')),
+        h('span',{className:'rcounty'},x.countyName),
+        h('span',{className:'rval',style:'color:#7c3aed'},x.fttrB+'户'))
+    })));
+  return h('div',{},frag);
+}
+
+// ---- SALES: NOTICES ----
+function renderNotices(vd,ag){
+  var frag=document.createDocumentFragment();
+  var sorted=notices.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date)});
+  if(sorted.length===0){
+    frag.appendChild(h('div',{className:'card'},h('div',{style:'text-align:center;padding:40px;color:var(--gray-400)'},'暂无通知公告')));
+  }else{
+    sorted.forEach(function(n){
+      var typeLabel=n.type==='urgent'?'紧急通知':n.type==='case'?'优秀案例':'通知公告';
+      var typeBadge=n.type==='urgent'?'badge-red':n.type==='case'?'badge-green':'badge-blue';
+      frag.appendChild(h('div',{className:'notice-card '+(n.type==='urgent'?'urgent':n.type==='case'?'case':'')},
+        h('div',{className:'nhead'},
+          h('span',{className:'ntitle'},n.title),
+          h('span',{className:'badge '+typeBadge},typeLabel)),
+        h('div',{className:'nmeta'},'发布人：'+(n.author||'市公司')+' | '+n.date),
+        h('div',{className:'nbody'},n.content)));
+    });
+  }
   return h('div',{},frag);
 }
 
@@ -628,6 +823,38 @@ function addMember(countyId){var c=data.find(function(d){return d.id===countyId}
 function removeMember(countyId,idx){var c=data.find(function(d){return d.id===countyId});if(c&&c.members.length>idx){c.members.splice(idx,1);c.recruitCurrent=Math.max(0,c.recruitCurrent-1);saveData(data);render()}}
 function handleExport(){var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='商客直销数据_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);toast('数据已导出')}
 function handleImport(){var txt=prompt('请粘贴导出的JSON数据：');if(!txt)return;try{var d=JSON.parse(txt);if(!Array.isArray(d))throw 0;data=d;saveData(data);toast('导入成功');render()}catch(e){alert('数据格式错误，请粘贴正确的JSON')}}
+
+// ============ SALES ACCT & NOTICE OPS ============
+function addSalesAccount(){
+  var newId='sales'+(salesAccounts.length+1);
+  salesAccounts.push({id:newId,password:'sk2026',name:'新直销经理',memberName:'',countyId:'shihe',countyName:'浉河区',role:'sales'});
+  saveSalesAccounts(salesAccounts);render();
+}
+function updateSalesAccount(idx,field,val){
+  if(!salesAccounts[idx])return;
+  salesAccounts[idx][field]=val;
+  if(field==='countyId'){var co=COUNTIES.find(function(c){return c.id===val});if(co){salesAccounts[idx].countyName=co.name;salesAccounts[idx].name=co.name+'直销经理'}}
+  saveSalesAccounts(salesAccounts);render();
+}
+function removeSalesAccount(idx){
+  if(salesAccounts.length<=idx)return;
+  salesAccounts.splice(idx,1);
+  saveSalesAccounts(salesAccounts);render();
+}
+function addNotice(){
+  notices.push({title:'新通知',type:'normal',author:'市公司管理员',date:new Date().toISOString().slice(0,10),content:'请输入通知内容...'});
+  saveNotices(notices);render();
+}
+function updateNotice(idx,field,val){
+  if(!notices[idx])return;
+  notices[idx][field]=val;
+  saveNotices(notices);render();
+}
+function removeNotice(idx){
+  if(notices.length<=idx)return;
+  notices.splice(idx,1);
+  saveNotices(notices);render();
+}
 
 // ============ INIT ============
 loadAuth();render();
